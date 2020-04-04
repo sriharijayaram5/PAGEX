@@ -1,8 +1,14 @@
 PAGEX Proton, Alpha, Gamma, Electron and X-radiation interaction parameters October 2019 
+
+
 Original release : October 2019 
+
+
 Srilakshmi Prabhu, Sreehari Jayaram, Bubbly S G* and S B Gudennavar 
 Department of Physics and Electronics, CHRIST (Deemed to be University), Bengaluru-560029, Karnataka, India 
 *Correspondence to: bubbly.sg@christuniversity.in; bubblysg@rediffmail.com 
+
+
 A complete package for computation of various radiation interaction parameters useful in diverse fields. The radiations considered include X-/gamma rays, electrons, protons and alpha particles. 
 
 Various parameters and their relevant atomic number and energy range computed by PAGEX are as follows: 
