@@ -124,7 +124,9 @@ For photon interaction:
 
 </table>
 
-a - Note: 1 barn = 10<sup>-24</sup>cm<sup>2</sup> b - Relative to air and 11 human tissues (adipose tissue, blood, bone, brain, breast, eye, muscles, ovary, testis, skin and soft tissue) as reported in ICRU Report 44 (1989) ###### For charged particle interaction:
+a - Note: 1 barn = 10<sup>-24</sup>cm<sup>2</sup> b - Relative to air and 11 human tissues (adipose tissue, blood, bone, brain, breast, eye, muscles, ovary, testis, skin and soft tissue) as reported in ICRU Report 44 (1989)
+
+For charged particle interaction:
 
 <table id="chtb">
 
