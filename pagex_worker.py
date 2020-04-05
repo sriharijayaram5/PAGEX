@@ -89,19 +89,49 @@ class Compound:
             self.ta_param[i] = data
         return self.ta_param
     
-    def myu(self):
+    def d1(self):
         func = np.vectorize(lambda i : element(i).mass)
         keys = self.dict_comp.keys()
         denom = self.weight_fraction / func(keys) 
         denom1 = np.sum(denom) * n
+        return denom1
+
+    def myu(self):
+        denom1 = self.d1()
         self.myu_comp = np.ndarray((7,80))
         params = self.total_attenuation()
         self.myu_comp = np.sum((params.T * self.weight_fraction).T, axis=0)
-        self.myu_comp[0] = params[0]
+        self.myu_comp[0] = params[0][0]
         self.myu_comp = np.append(self.myu_comp, [self.myu_comp[-1]/denom1], axis = 0)
         self.myu_comp = np.append(self.myu_comp, [(self.myu_comp[-2]-self.myu_comp[1])/denom1], axis = 0)
         return self.myu_comp
 
+    def zeff_by_log(self):
+        photon_abs_element_list = loadtxt(
+            "element_photo_abs", usecols=(0), unpack=True).reshape((99,80))
+        
+        if self.frac_flag:
+            self.photon_comp = self.myu[-2]
+        else:        
+            params = self.total_attenuation()
+            func = np.vectorize(lambda i : element(i).mass)
+            keys = self.dict_comp.keys()
+            self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0) / n
+
+        params = photon_abs_element_list.T    
+        zno = np.arange(1,99)    
+        z_comp = self.dict_comp.keys()
+        zeff = np.full(80, np.nan)
+
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(i).mass)
+        Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        zeff = func(params, self.photon_comp)
+
+        return zeff
         
 def CreateFolder(directory):
     try:
