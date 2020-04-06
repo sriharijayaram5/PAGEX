@@ -44,7 +44,6 @@ class Compound:
         self.fetch_compound()
         self.calc_weight_fraction()
         
-
     def calc_weight_fraction(self):
         keys = self.dict_comp.keys()
         func = np.vectorize(lambda i : element(i).mass * self.dict_comp[i])
@@ -111,12 +110,12 @@ class Compound:
             "element_photo_abs", usecols=(0), unpack=True).reshape((99,80))
         
         if self.frac_flag:
-            self.photon_comp = self.myu[-2]
+            self.photon_comp = self.myu_comp[-2]
         else:        
             params = self.total_attenuation()
             func = np.vectorize(lambda i : element(i).mass)
             keys = self.dict_comp.keys()
-            self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0) / n
+            self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
 
         params = photon_abs_element_list.T    
         zno = np.arange(1,99)    
@@ -132,6 +131,113 @@ class Compound:
         zeff = func(params, self.photon_comp)
 
         return zeff
+
+    def zeq_by_R(self, gp=False):
+        R_element_list = loadtxt("element_R", usecols=(0), unpack=True).reshape((99,80))
+
+        params = self.total_attenuation()
+        R_comp_1 = np.sum((params.T * self.weight_fraction).T, axis=0)[2]
+        R_comp_2 = np.sum((params.T * self.weight_fraction).T, axis=0)[-1]
+        self.R_comp = R_comp_1/R_comp_2
+
+        params = R_element_list.T    
+        zno = np.arange(1,99)    
+        z_comp = self.dict_comp.keys()
+        self.zeq = np.full(80, np.nan)
+
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(i).mass)
+        Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        self.zeq = func(params, self.R_comp)    
+        #[np.nonzero(np.in1d(e1, e_range))]
+        prob_flag = True
+    
+        if gp and prob_flag:
+            b = get_gp('A',1)
+            c = get_gp('A',2)
+            a = get_gp('A',3)
+            xk = get_gp('A',4)
+            d = get_gp('A',5)
+
+            b1 = get_gp('B',1)
+            c1 = get_gp('B',2)
+            a1 = get_gp('B',3)
+            xk1 = get_gp('B',4)
+            d1 = get_gp('B',5)
+            
+            B = {}
+            BE = {}
+
+            #mfp_q = prompt(user_mfp_list, style=style_1)['user_mfp_list']
+            mfp_q = mean_free_path
+            mfps = mfp_q.split()
+            mfps[:] = [float(x) for x in mfps]
+            for x in mfps:
+                for i,e in enumerate(gp_energy_range):
+                    k1 = (
+                        (c[i] * (x**a[i])) + d[i] *( (np.tanh( (x/xk[i])-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
+                    )
+                    if mfps.index(x) == 0:
+                        B[e*1000000] = [round(b[i],3), round(c[i],3), round(a[i],3), round(xk[i],3), round(d[i],3) ]
+                    if k1 == 1:
+                        B[e*1000000].append(round(1 +(( b[i]-1 ) * x),3) )
+                    else:
+                        B[e*1000000].append(round(1 +( ( (b[i] - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3) )
+
+
+                for i,e in enumerate(gp_energy_range):
+                    k1 = (
+                        (c1[i] * (x**a1[i])) + d1[i] *( (np.tanh( (x/xk1[i])-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
+                    )
+                    if mfps.index(x) == 0:
+                        BE[e*1000000] = [ round(b1[i],3), round(c1[i],3), round(a1[i],3), round(xk1[i],3), round(d1[i],3) ]
+                    if k1 == 1:
+                        BE[e*1000000].append(round(1 +(( b1[i]-1 ) * x),3) )
+                    else:
+                        BE[e*1000000].append( round(1 + (( (b1[i] - 1) * ( k1**x - 1) ) / ( k1 - 1)),3) )
+            return 'G-P fitting parameters and buildup factors - EABF, EBF'
+
+
+    def get_gp(self, db, param):
+        good_z = []
+        all_y = np.full((22,25), np.nan)
+        all_z = np.full(22, np.nan)
+        
+        for i,j in enumerate(range(4,83)):
+            good_z.append(j)    
+            zin = str(j)
+            loc = 'ANSI_data/ANSI_'+db+'/DATAn_'+zin
+            try:
+                a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,param],dtype=float)
+                y1 = array(a[param])
+                x = array(a[0])
+                all_y[i] = y1
+                all_z[i] = j
+            except FileNotFoundError:
+                continue
+            
+        a = all_y.T
+        b = self.zeq[np.nonzero(np.in1d(self.ta_param[0], x))]
+        # new_good_z = np.append(b, all_z).sort()
+        # a = list(zip(*all_y))
+        # inter_y=[]
+        # new_good_z = []
+        # for e in gp_energy_range:
+        #     b = list(all_z)
+        #     b.append(zeq_R[e*1000000][0])
+        #     b.sort()
+        #     new_good_z.append(b)
+        f = interp1d(all_z, a, kind = 'cubic')
+        inter_y = f(b)
+        return inter_y
+        # for i in range(len(a)):
+        #     f = interp1d(all_z, a[i], kind='cubic')
+        #     inter_y = f(new_good_z[i])
+        #     new_param.append(inter_y[new_good_z[i].index(zeq_R[gp_energy_range[i]*1000000][0])])
+        # return new_param
         
 def CreateFolder(directory):
     try:
