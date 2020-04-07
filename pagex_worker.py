@@ -220,6 +220,101 @@ class Compound:
         self.photon_e_comp = np.sum((params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-3] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
 
+    def stopping_power_compound_post(self):      
+        formula = []
+        for i,e in enumerate(self.dict_comp.keys()):
+            formula.extend(
+                [element(e).symbol, str(round(self.weight_fraction[i],6)), '\n'])
+        # formula=['H','0.11190674437968359','\n','O','0.8880932556203164']
+        formula_req = ''
+        for f in formula:
+            formula_req = formula_req + f + ' '
+        with requests.Session() as c:
+            url = 'https://physics.nist.gov/cgi-bin/Star/estar-ut.pl'
+            d = self.density_mat
+            data1 = {'Name': 'Material',
+                    'Density': d,
+                    'Formulae': formula_req}
+            a = True
+            while a:
+                try:
+                    r = c.post(url, data=data1)
+                    a = False
+                except requests.exceptions.ConnectionError:
+                    eel.excel_alert("Please check internet conncection. This parameter requires an active connection.")
+
+            soup = BeautifulSoup(r.text, 'html.parser')
+            results = soup.find('input').attrs['value']
+        with requests.Session() as c:
+            url = 'https://physics.nist.gov/cgi-bin/Star/e_table-ut.pl'
+            pairnum = -1
+            for f in formula:
+                try:
+                    float(f)
+                    pairnum = pairnum + 1
+                except ValueError:
+                    pass
+            lines = []
+            for f in range(0, len(formula), 3):
+                if formula[f] == '\n':
+                    continue
+                lines.append(formula[f] + ' ' + formula[f + 1])
+            data1 = {'I': results,
+                    'ShowDefault': 'on',
+                    'Name': 'Material',
+                    'Density': d,
+                    'pairnum': pairnum}
+            for l in lines:
+                data1['line' + str(lines.index(l))] = l
+            a = True
+            while a:
+                try:
+                    r = c.post(url, data=data1)
+                    a = False
+                except requests.exceptions.ConnectionError:
+                    eel.excel_alert("Please check internet conncection. This parameter requires an active connection.")
+            soup = BeautifulSoup(r.text, 'html.parser')
+            results = soup.find_all('pre')
+
+            dat1 = results[0].contents[12:-1:2]
+            dat1[:] = [x for x in dat1 if x != ' ']
+            dat1[:] = [x for x in dat1 if x != '\x0c']
+            dat1[:] = [x.strip() for x in dat1]
+            d = np.fromstring(dat1, dtype = float, sep = ' ')
+            d = d.reshape((len(d)/7),7).T
+            a, b = d[0], d[3]
+            return a, b
+            
+    def zeff_electron_interaction(self):
+        x, mass_stopping_power = self.stopping_power_compound_post()
+        electron_int_cross = mass_stopping_power / self.d1()
+        electron_msp = mass_stopping_power
+        ele_electron_int_cross = np.full((98,81), np.nan)
+        for i in range(1, 99):
+            z = element(i).atomic_number
+            if z < 10:
+                zin = '00' + str(z)
+            else:
+                zin = '0' + str(z)
+            loc = 'EStar_data/DATA' + zin
+            a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,3])
+            y = a[3] / (n / element(i).atomic_weight)
+            ele_electron_int_cross[i-1] = y
+
+        params = ele_electron_int_cross.T    
+        zno = np.arange(1,99)    
+        z_comp = self.dict_comp.keys()
+        self.zeff_ele = np.full(81, np.nan)
+
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        self.zeff_ele = func(params, electron_int_cross) 
+        return self.zeff_ele
+
         
 def CreateFolder(directory):
     try:
