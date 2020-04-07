@@ -46,7 +46,7 @@ class Compound:
         
     def calc_weight_fraction(self):
         keys = self.dict_comp.keys()
-        func = np.vectorize(lambda i : element(i).mass * self.dict_comp[i])
+        func = np.vectorize(lambda i : element(int(i)).mass * self.dict_comp[i])
         keys = func(keys)
         self.weight_fraction = keys/np.sum(keys)
         if self.frac_flag:
@@ -89,7 +89,7 @@ class Compound:
         return self.ta_param
     
     def d1(self):
-        func = np.vectorize(lambda i : element(i).mass)
+        func = np.vectorize(lambda i : element(int(i)).mass)
         keys = self.dict_comp.keys()
         denom = self.weight_fraction / func(keys) 
         denom1 = np.sum(denom) * n
@@ -113,7 +113,7 @@ class Compound:
             self.photon_comp = self.myu_comp[-2]
         else:        
             params = self.total_attenuation()
-            func = np.vectorize(lambda i : element(i).mass)
+            func = np.vectorize(lambda i : element(int(i)).mass)
             keys = self.dict_comp.keys()
             self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
 
@@ -123,7 +123,7 @@ class Compound:
         zeff = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(i).mass)
+        func = np.vectorize(lambda i : element(int(i)).mass)
         # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
 
         func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
@@ -146,7 +146,7 @@ class Compound:
         self.zeq = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(i).mass)
+        func = np.vectorize(lambda i : element(int(i)).mass)
         # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
 
         func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
@@ -213,37 +213,13 @@ class Compound:
     
     def zeff_by_Ratio(self):
         '''Zeff by direct method'''
-        
-        for k in range(k1):
-            z = 0.0
-            #To compute total molecular cross section
-            for j in elements_list:
-                z = z + (number_fraction[element(j).atomic_number] * elp[(
-                    elements_list.index(j) * k1) + k][2]) * element(j).atomic_weight
+        params = self.total_attenuation()
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        keys = self.dict_comp.keys()
+        self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
+        self.photon_e_comp = np.sum((params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-3] / n
+        self.zeff_ratio = self.photon_comp / self.photon_e_comp
 
-            photon.append(z / n)
-
-        for e in e_range:
-            photon_comp[e] = photon[e_range.index(e)]
-
-        for k in range(k1):
-            z = 0.0
-            #To compute total electronic cross section
-            for j in elements_list:
-                z = z + (number_fraction[element(j).atomic_number] * elp[(elements_list.index(
-                    j) * k1) + k][2]) * element(j).atomic_weight / element(j).atomic_number
-
-            photon_e.append(z / n)
-
-        for e in e_range:
-            photon_e_comp[e] = photon_e[e_range.index(e)]
-
-        for e in e_range:
-            zeff_Ratio[e] = [
-                (photon_comp[e] / photon_e_comp[e]),
-                photon_comp[e],
-                photon_e_comp[e],'NA','NA','NA',
-                myu_w_energy[e][0]/photon_e_comp[e]]
         
 def CreateFolder(directory):
     try:
