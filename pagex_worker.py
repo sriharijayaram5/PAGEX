@@ -167,21 +167,21 @@ class Compound:
             d1 = self.get_gp('B',5)
             
             mfps = np.asarray([float(x) for x in self.mean_free_path.split()])
-            f = lambda x : (
+            f = lambda i : [(
                                 (c * (x**a)) + d *( (np.tanh( (x/xk)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
-                            )
+                            ) for x in i]
             k1 = f(mfps)
             
-            f = lambda x : np.where(k1==1, np.around(1 +(( b-1 ) * x),3), np.around(1 +( ( (b - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3))
+            f = lambda i : [np.where(k1==1, np.around(1 +(( b-1 ) * x),3), np.around(1 +( ( (b - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3)) for x in i]
             self.B = f(mfps)            
             self.p_B = np.asarray([np.around(b,3), np.around(c,3), np.around(a,3), np.around(xk,3), np.around(d,3) ])
             #
-            f = lambda x : (
+            f = lambda i : [(
                                 (c1 * (x**a1)) + d1 *( (np.tanh( (x/xk1)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
-                            )
+                            ) for x in i]
             k1 = f(mfps)
             
-            f = lambda x : np.where(k1==1, np.around(1 +(( b1-1 ) * x),3), np.around(1 +( ( (b1 - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3))
+            f = lambda i : [np.where(k1==1, np.around(1 +(( b1-1 ) * x),3), np.around(1 +( ( (b1 - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3)) for x in i]
             self.BE = f(mfps)            
             self.p_BE = np.asarray([np.around(b1,3), np.around(c1,3), np.around(a1,3), np.around(xk1,3), np.around(d1,3) ])
             
@@ -210,6 +210,40 @@ class Compound:
         f = interp1d(all_z, a, kind = 'cubic')
         inter_y = f(b)
         return inter_y
+    
+    def zeff_by_Ratio(self):
+        '''Zeff by direct method'''
+        
+        for k in range(k1):
+            z = 0.0
+            #To compute total molecular cross section
+            for j in elements_list:
+                z = z + (number_fraction[element(j).atomic_number] * elp[(
+                    elements_list.index(j) * k1) + k][2]) * element(j).atomic_weight
+
+            photon.append(z / n)
+
+        for e in e_range:
+            photon_comp[e] = photon[e_range.index(e)]
+
+        for k in range(k1):
+            z = 0.0
+            #To compute total electronic cross section
+            for j in elements_list:
+                z = z + (number_fraction[element(j).atomic_number] * elp[(elements_list.index(
+                    j) * k1) + k][2]) * element(j).atomic_weight / element(j).atomic_number
+
+            photon_e.append(z / n)
+
+        for e in e_range:
+            photon_e_comp[e] = photon_e[e_range.index(e)]
+
+        for e in e_range:
+            zeff_Ratio[e] = [
+                (photon_comp[e] / photon_e_comp[e]),
+                photon_comp[e],
+                photon_e_comp[e],'NA','NA','NA',
+                myu_w_energy[e][0]/photon_e_comp[e]]
         
 def CreateFolder(directory):
     try:
