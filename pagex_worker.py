@@ -190,8 +190,8 @@ class Compound:
 
 
     def get_gp(self, db, param):
-        all_y = np.full((22,25), np.nan)
-        all_z = np.full(22, np.nan)
+        all_y = []
+        all_z = []
         
         for i,j in enumerate(range(4,83)):
             zin = str(j)
@@ -200,12 +200,12 @@ class Compound:
                 a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,param],dtype=float)
                 y1 = array(a[param])
                 x = array(a[0])
-                all_y[i] = y1
-                all_z[i] = j
+                all_y.append(y1)
+                all_z.append(j)
             except FileNotFoundError:
                 continue
             
-        a = all_y.T
+        a = np.asarray(all_y).T
         b = self.zeq[np.nonzero(np.in1d(self.ta_param[0], x))]
         f = interp1d(all_z, a, kind = 'cubic')
         inter_y = f(b)
@@ -304,7 +304,6 @@ class Compound:
         params = ele_electron_int_cross.T    
         zno = np.arange(1,99)    
         z_comp = self.dict_comp.keys()
-        self.zeff_ele = np.full(81, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
         func = np.vectorize(lambda i : element(int(i)).mass)
@@ -314,8 +313,99 @@ class Compound:
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         self.zeff_ele = func(params, electron_int_cross) 
         return self.zeff_ele
-
         
+    def zeff_proton_interaction(self):
+        good_z = np.arange(1,93)
+        all_y = []
+        all_z = []
+        for i in range(1, 93):
+            if i < 10:
+                zin = '00' + str(i)
+            else:
+                zin = '0' + str(i)
+            loc = 'PStar_data/DATA' + zin
+            try:
+                a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,3])
+                x = a[0]
+                y = a[3]
+            except OSError:
+                continue
+            all_y.append(y)
+            all_z.append(i)
+
+        a = np.asarray(all_y).T
+        f = interp1d(all_z, a, kind = 'cubic')
+        inter_y = f(good_z)
+        all_new_y = inter_y.T
+
+        msp = all_new_y[np.asarray([*self.dict_comp.keys()])-1]
+        msp_comp = np.sum((msp.T * self.weight_fraction).T, axis=0)
+        proton_int_cross = msp_comp / self.d1()
+        
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        b = n / func(np.arange(1,93))
+        ele_proton_int_cross = all_new_y / b
+
+        params = ele_proton_int_cross.T    
+        zno = np.arange(1,93)    
+        z_comp = self.dict_comp.keys()
+        
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        self.zeff_proton = func(params, proton_int_cross) 
+
+        return self.zeff_proton
+        
+    def zeff_alpha_interaction(self):
+        good_z = np.arange(1,93)
+        all_y = []
+        all_z = []
+        for i in range(1, 93):
+            if i < 10:
+                zin = '00' + str(i)
+            else:
+                zin = '0' + str(i)
+            loc = 'AStar_data/DATA' + zin
+            try:
+                a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,3])
+                x = a[0]
+                y = a[3]
+            except OSError:
+                continue
+            all_y.append(y)
+            all_z.append(i)
+
+        a = np.asarray(all_y).T
+        f = interp1d(all_z, a, kind = 'cubic')
+        inter_y = f(good_z)
+        all_new_y = inter_y.T
+
+        msp = all_new_y[np.asarray([*self.dict_comp.keys()])-1]
+        msp_comp = np.sum((msp.T * self.weight_fraction).T, axis=0)
+        alpha_int_cross = msp_comp / self.d1()
+        
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        b = n / func(np.arange(1,93))
+        ele_alpha_int_cross = all_new_y / b
+
+        params = ele_alpha_int_cross.T    
+        zno = np.arange(1,93)    
+        z_comp = self.dict_comp.keys()
+        
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        self.zeff_alpha = func(params, alpha_int_cross) 
+
+        return self.zeff_alpha
+
 def CreateFolder(directory):
     try:
         if not os.path.exists(directory):
