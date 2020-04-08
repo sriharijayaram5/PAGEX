@@ -103,7 +103,23 @@ class Compound:
         self.myu_comp[0] = params[0][0]
         self.myu_comp = np.append(self.myu_comp, [self.myu_comp[-1]/denom1], axis = 0)
         self.myu_comp = np.append(self.myu_comp, [(self.myu_comp[-2]-self.myu_comp[1])/denom1], axis = 0)
-        return self.myu_comp
+        
+        dest_filename = 'Save_File/Photon mass attenuation and interaction cross section parameters'
+        if len(self.dict_comp)==1:
+            header = ['Energy (MeV)', 'σ(coh)  (cm²/atom)','σ(incoh)  (cm²/atom)','σ(pe)  (cm²/atom)','σ(pair)  (cm²/atom)','σ(trip)  (cm²/atom)'
+            ,'σ(wo/coh) (cm²/atom)','σ(w/coh) (cm²/atom)','μ/ρ(coh)  (cm²/g)','μ/ρ(incoh)  (cm²/g)','μ/ρ(pe)  (cm²/g)'
+            ,'μ/ρ(pair)  (cm²/g)','μ/ρ(trip)  (cm²/g)','μ/ρ(wo/coh) (cm²/g)','μ/ρ(w/coh) (cm²/g)']
+            func = np.vectorize(lambda i : element(int(i)).mass/n)
+            keys = self.dict_comp.keys()
+            f = func(keys)
+            params = [*(self.myu_comp[0:-3]*f), self.myu_comp[-1]*f, self.myu_comp[-3]*f, *self.myu_comp[1:-3], self.myu_comp[-1], self.myu_comp[-3]]
+        else:
+            header = ['Energy (MeV)', 'μ/ρ(coh)  (cm²/g)','μ/ρ(incoh)  (cm²/g)','μ/ρ(pe)  (cm²/g)','μ/ρ(pair)  (cm²/g)',
+            'μ/ρ(trip)  (cm²/g)','μ/ρ(wo/coh) (cm²/g)','μ/ρ(w/coh) (cm²/g)']
+            params = [*self.myu_comp[0:-3], self.myu_comp[-1], self.myu_comp[-3]]
+
+        data = {'name' : dest_filename, 'header' : header,'params' : params}
+        return data
 
     def zeff_by_log(self):
         photon_abs_element_list = loadtxt(
@@ -130,7 +146,10 @@ class Compound:
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         zeff = func(params, self.photon_comp)
 
-        return zeff
+        dest_filename = 'Save_File/Photon Zeff - Interpolation method'
+        data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, params[-3]/self.photon_comp*zeff]}
+        
+        return data
 
     def zeq_by_R(self, gp=False):
         R_element_list = loadtxt("element_R", usecols=(0), unpack=True).reshape((99,80))
@@ -152,6 +171,9 @@ class Compound:
         func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         self.zeq = func(params, self.R_comp)    
+
+        dest_filename = 'Save_File/Photon Zeq'
+        data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeq', 'R'], 'params' : [params[0][0], self.zeq, self.R_comp]}
     
         if gp:
             b = self.get_gp('A',1)
@@ -184,22 +206,28 @@ class Compound:
             f = lambda i : [np.where(k1==1, np.around(1 +(( b1-1 ) * x),3), np.around(1 +( ( (b1 - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3)) for x in i]
             self.BE = f(mfps)            
             self.p_BE = np.asarray([np.around(b1,3), np.around(c1,3), np.around(a1,3), np.around(xk1,3), np.around(d1,3) ])
-            
 
-            return 'G-P fitting parameters and buildup factors - EABF, EBF'
+            dest_filename = 'Save_File/G-P fitting parameters and buildup factors'
+            header = ['Energy (MeV)', 'b', 'c', 'a', 'Xk', 'd'] + [f'EABF {i}mfp' for i in mfps]
+            header += ['b', 'c', 'a', 'Xk', 'd'] + [f'EBF {i}mfp' for i in mfps]
+            loc = 'ANSI_data/ANSI_'+'A'+'/DATAn_'+'4'
+            a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0],dtype=float)
+            energy = a[0]
+            data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, self.B, *self.p_BE, self.BE]}
+            
+        return data
 
 
     def get_gp(self, db, param):
         all_y = []
         all_z = []
-        
-        for i,j in enumerate(range(4,83)):
+        for j in range(4,83):
             zin = str(j)
             loc = 'ANSI_data/ANSI_'+db+'/DATAn_'+zin
             try:
                 a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,param],dtype=float)
-                y1 = array(a[param])
-                x = array(a[0])
+                y1 = a[param]
+                x = a[0]
                 all_y.append(y1)
                 all_z.append(j)
             except FileNotFoundError:
@@ -219,6 +247,14 @@ class Compound:
         self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
         self.photon_e_comp = np.sum((params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-3] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
+        
+        dest_filename = 'Save_File/Photon Zeff - Direct method'
+        data = {'name' : dest_filename, 
+                'header' : ['Energy (MeV)', 'Zeff',
+                'σₐ Average Cross Section per Atom (cm²/atom)',
+                'σₑ Average Cross Section per Electron (cm²/electron)',
+                'Neff (electrons/g)'], 'params' : [params[0][0], self.zeff_ratio, self.photon_comp, self.photon_e_comp, params[-3]/self.photon_e_comp]}
+        return data
 
     def stopping_power_compound_post(self):      
         formula = []
@@ -312,7 +348,13 @@ class Compound:
         func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         self.zeff_ele = func(params, electron_int_cross) 
-        return self.zeff_ele
+
+        dest_filename = 'Save_File/Electron interaction parameters'
+        data = {'name' : dest_filename, 'header' : 
+                ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
+                 'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
+                'params' : [x, electron_msp, electron_int_cross, self.zeff_ele, electron_msp / electron_int_cross * self.zeff_ele]}
+        return data
         
     def zeff_proton_interaction(self):
         good_z = np.arange(1,93)
@@ -358,7 +400,12 @@ class Compound:
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         self.zeff_proton = func(params, proton_int_cross) 
 
-        return self.zeff_proton
+        dest_filename = 'Save_File/Proton interaction parameters'
+        data = {'name' : dest_filename, 'header' : 
+                ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
+                 'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
+                'params' : [x, msp_comp, proton_int_cross, self.zeff_proton, msp_comp / proton_int_cross * self.zeff_proton]}
+        return data
         
     def zeff_alpha_interaction(self):
         good_z = np.arange(1,93)
@@ -404,7 +451,94 @@ class Compound:
         func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
         self.zeff_alpha = func(params, alpha_int_cross) 
 
-        return self.zeff_alpha
+        dest_filename = 'Save_File/Alpha particle interaction parameters'
+        data = {'name' : dest_filename, 'header' : 
+                ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
+                 'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
+                'params' : [x, msp_comp, alpha_int_cross, self.zeff_alpha, msp_comp / alpha_int_cross * self.zeff_alpha]}
+        return data
+
+
+
+    def kerma_1(self, relative_to_choice='AIR', kerma = False):
+        ele_x = []
+        for i in range(1, 93):
+            z = element(i).atomic_number
+            zin = ''
+            if z < 10:
+                zin = '0' + str(z)
+            else:
+                zin = str(z)
+            loc = 'XRay_data1/DATAn' + zin
+            a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,2])
+            x = a[0]
+            y = a[2]
+            ele_x.append(list(y))
+        ele_x = np.asarray(ele_x)
+
+        mec_comp = ele_x[np.asarray([*self.dict_comp.keys()])-1]
+        self.mec_comp1 = np.sum((mec_comp.T * self.weight_fraction).T, axis=0)
+        sigmaa = self.mec_comp1 / self.d1()
+
+        loc = 'XRay_Comp1/DATA_' + relative_to_choice
+        self.mec_rel = loadtxt(loc, usecols=(2), unpack=True)
+        
+        self.kerma = self.mec_comp1 / self.mec_rel
+
+        ele_x_int_cross = ele_x / self.d1()
+        params = ele_x_int_cross.T    
+        zno = np.arange(1,93)    
+        z_comp = self.dict_comp.keys()
+
+        avg = np.sum(z_comp * self.weight_fraction)
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
+
+        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        self.zeff_x = func(params, sigmaa) 
+        #mec_comp1[e] / sigmaa[e] * zeff
+        if kerma:
+            dest_filename = 'Save_File/Relative KERMA'
+            data = {'name' : dest_filename, 'header' : 
+                    ['Energy (MeV)', f'{relative_to_choice} KERMA'], 
+                    'params' : [x, self.kerma]}
+        else:    
+            dest_filename = 'Save_File/Photon mass-energy absorption coefficients'
+            data = {'name' : dest_filename, 'header' : 
+                    ['Energy (MeV)', 'MEC μₑₙ/ρ (cm²/g)', 
+                    'Z PEAeff', 'N PEAeff (electrons/g)'], 
+                    'params' : [x, mec_comp, self.zeff_x, mec_comp/sigmaa*self.zeff_x]}
+        return data
+     
+    def write_to_csv(self, data):
+        fname = data['name'] + f'-{self.formula_for_text}.csv'
+        X = np.asarray(data['params'])
+        np.savetxt(fname, X, fmt='%.18e', header = ','.join(data['header']),delimiter=',', comments='#')
+
+    def interpolate_e(self, energy, parameter, new_energy, num=0):
+        y=[]
+        
+        if isinstance(parameter[energy[0]],float): 
+            for j in energy:
+                y.append(parameter[j])
+        else:
+            for j in energy: 
+                y.append(parameter[j][num])
+        f = interp1d(energy,y,kind='cubic')
+        return(f(new_energy))
+
+    def interpolate_e_linear(self, energy, parameter, new_energy, num=0):
+        y=[]
+        
+        if isinstance(parameter[energy[0]],float): 
+            for j in energy:
+                y.append(parameter[j])
+        else:
+            for j in energy: 
+                y.append(parameter[j][num])
+        f = interp1d(energy,y,kind='slinear')
+        return(f(new_energy))
 
 def CreateFolder(directory):
     try:
@@ -418,7 +552,7 @@ def CreateLog(dat1, loc = "InputLog.log"):
         text_file.write(json.dumps(dat1))
         text_file.write('\n')
 
-CreateFolder('Excel_Sheets')
+CreateFolder('Save_File')
 
 
 @eel.expose
@@ -444,9 +578,8 @@ def main1( comp_0a='H', do_what_now='Back', output='Do both', ff1=False,comp_1a=
     CreateLog(input_log)
     start_time = time.process_time()
 
-    fetch_compound()
-    myu()
-    methods()
+    data = comp.myu()
+    comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
 
