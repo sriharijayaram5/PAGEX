@@ -124,13 +124,8 @@ class Compound:
         photon_abs_element_list = loadtxt(
             "element_photo_abs", usecols=(0), unpack=True).reshape((99,80))
         self.myu()
-        if self.frac_flag:
-            self.photon_comp = self.myu_comp[-2]
-        else:        
-            params = self.total_attenuation()
-            func = np.vectorize(lambda i : element(int(i)).mass)
-            keys = self.dict_comp.keys()
-            self.photon_comp = np.sum((params.T * self.number_fraction * func([*keys])).T, axis=0)[-3] / n
+        self.photon_comp = self.myu_comp[-2]
+        params = self.total_attenuation()
         params1 = photon_abs_element_list.T    
         zno = np.arange(1,99)    
         z_comp = [*self.dict_comp.keys()]
