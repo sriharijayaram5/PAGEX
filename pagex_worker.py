@@ -47,13 +47,13 @@ class Compound:
     def calc_weight_fraction(self):
         keys = self.dict_comp.keys()
         func = np.vectorize(lambda i : element(int(i)).mass * self.dict_comp[i])
-        keys = func(keys)
+        keys = func([*keys])
         self.weight_fraction = keys/np.sum(keys)
         if self.frac_flag:
             self.weight_fraction = np.asarray(self.weight_frac_list)
 
         if not self.frac_flag:
-            values = self.dict_comp.values()
+            values = np.asarray([*self.dict_comp.values()])
             self.number_fraction = values/np.sum(values)
 
     def comp_input(self):
@@ -83,15 +83,15 @@ class Compound:
             loc = 'NIST/'+'MDATX3n.' + str(z)
             m = element(z).mass
             data = np.loadtxt(loc, delimiter=', ').T
-            data[1:6] * n * 10**(-24) / m
-            data = np.append(data.T, [np.sum(data[1:6], axis = 0)], axis = 0)
+            data[1:] = data[1:] * n * 10**(-24) / m
+            data = np.append(data, [np.sum(data[1:], axis = 0)], axis = 0)
             self.ta_param[i] = data
         return self.ta_param
     
     def d1(self):
         func = np.vectorize(lambda i : element(int(i)).mass)
         keys = self.dict_comp.keys()
-        denom = self.weight_fraction / func(keys) 
+        denom = self.weight_fraction / func([*keys]) 
         denom1 = np.sum(denom) * n
         return denom1
 
@@ -103,7 +103,6 @@ class Compound:
         self.myu_comp[0] = params[0][0]
         self.myu_comp = np.append(self.myu_comp, [self.myu_comp[-1]/denom1], axis = 0)
         self.myu_comp = np.append(self.myu_comp, [(self.myu_comp[-2]-self.myu_comp[1])/denom1], axis = 0)
-        
         dest_filename = 'Save_File/Photon mass attenuation and interaction cross section parameters'
         if len(self.dict_comp)==1:
             header = ['Energy (MeV)', 'σ(coh)  (cm²/atom)','σ(incoh)  (cm²/atom)','σ(pe)  (cm²/atom)','σ(pair)  (cm²/atom)','σ(trip)  (cm²/atom)'
@@ -111,7 +110,7 @@ class Compound:
             ,'μ/ρ(pair)  (cm²/g)','μ/ρ(trip)  (cm²/g)','μ/ρ(wo/coh) (cm²/g)','μ/ρ(w/coh) (cm²/g)']
             func = np.vectorize(lambda i : element(int(i)).mass/n)
             keys = self.dict_comp.keys()
-            f = func(keys)
+            f = func([*keys])
             params = [*(self.myu_comp[0:-3]*f), self.myu_comp[-1]*f, self.myu_comp[-3]*f, *self.myu_comp[1:-3], self.myu_comp[-1], self.myu_comp[-3]]
         else:
             header = ['Energy (MeV)', 'μ/ρ(coh)  (cm²/g)','μ/ρ(incoh)  (cm²/g)','μ/ρ(pe)  (cm²/g)','μ/ρ(pair)  (cm²/g)',
@@ -124,30 +123,29 @@ class Compound:
     def zeff_by_log(self):
         photon_abs_element_list = loadtxt(
             "element_photo_abs", usecols=(0), unpack=True).reshape((99,80))
-        
+        self.myu()
         if self.frac_flag:
             self.photon_comp = self.myu_comp[-2]
         else:        
             params = self.total_attenuation()
             func = np.vectorize(lambda i : element(int(i)).mass)
             keys = self.dict_comp.keys()
-            self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
-
-        params = photon_abs_element_list.T    
+            self.photon_comp = np.sum((params.T * self.number_fraction * func([*keys])).T, axis=0)[-3] / n
+        params1 = photon_abs_element_list.T    
         zno = np.arange(1,99)    
-        z_comp = self.dict_comp.keys()
+        z_comp = [*self.dict_comp.keys()]
         zeff = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
         func = np.vectorize(lambda i : element(int(i)).mass)
         # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
-
-        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        zeff = func(params, self.photon_comp)
-
+        
+        # func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
+        # func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
+        # zeff = func(params1, self.photon_comp)
+        
         dest_filename = 'Save_File/Photon Zeff - Interpolation method'
-        data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, params[-3]/self.photon_comp*zeff]}
+        data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, self.myu_comp[-3]/self.photon_comp*zeff]}
         
         return data
 
@@ -244,8 +242,8 @@ class Compound:
         params = self.total_attenuation()
         func = np.vectorize(lambda i : element(int(i)).mass)
         keys = self.dict_comp.keys()
-        self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-3] / n
-        self.photon_e_comp = np.sum((params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-3] / n
+        self.photon_comp = np.sum((params.T * self.number_fraction * func([*keys])).T, axis=0)[-3] / n
+        self.photon_e_comp = np.sum((params.T * self.number_fraction * func([*keys]) / keys).T, axis=0)[-3] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
         
         dest_filename = 'Save_File/Photon Zeff - Direct method'
@@ -513,8 +511,8 @@ class Compound:
      
     def write_to_csv(self, data):
         fname = data['name'] + f'-{self.formula_for_text}.csv'
-        X = np.asarray(data['params'])
-        np.savetxt(fname, X, fmt='%.18e', header = ','.join(data['header']),delimiter=',', comments='#')
+        X = np.asarray(data['params'])          
+        np.savetxt(fname, np.around(X.T,3), header = '\t'.join(data['header']),delimiter='\t', comments='#', fmt = '%s', encoding="utf-8")
 
     def interpolate_e(self, energy, parameter, new_energy, num=0):
         y=[]
@@ -556,29 +554,32 @@ CreateFolder('Save_File')
 
 
 @eel.expose
-def main1( comp_0a='H', do_what_now='Back', output='Do both', ff1=False,comp_1a='H', comp_2a='1', eflag=False,  mfp='1', density='1', \
-    rel_mat='Air', custom_energies_list=''):
+def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None, comp_2a=None, eflag=False,  mfp=None, density=None, \
+    rel_mat=None, custom_energies_list=None):
     comp = Compound(custom_energies_list, rel_mat, density, mfp, output, do_what_now, eflag, 
                     comp_0a, comp_1a, comp_2a, ff1)
     input_log = {}
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
     input_log["Log time"] = dt_string
-    input_log["Composition_0"] = comp_0
-    input_log["Composition_1a"] = comp_1
-    input_log["Composition_1b"] = comp_2
-    input_log["Composition_1b"] = comp_2
-    input_log["Parameter"] = do_what
-    input_log["Output"] = op
-    input_log["Energies"] = custom_energies
-    input_log["KERMA Material"] = icru_mat
-    input_log["Density"] = density_mat
-    input_log["MFP"] = mean_free_path
+    if ff1:
+        input_log["Elements"] = comp_1a
+        input_log["Weight Fraction"] = comp_2a
+    else:
+        input_log["Compound"] = comp_0a
+    input_log["Parameter"] = do_what_now
+    if not eflag:
+        input_log["Energies"] = custom_energies_list
+    if rel_mat is not None:
+        input_log["KERMA Material"] = rel_mat
+    if density is not None:
+        input_log["Density"] = density
+    if mfp is not None:
+        input_log["MFP"] = mfp
     
     CreateLog(input_log)
     start_time = time.process_time()
-
-    data = comp.myu()
+    data = comp.zeff_by_log()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
