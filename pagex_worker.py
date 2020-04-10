@@ -127,17 +127,16 @@ class Compound:
         self.photon_comp = self.myu_comp[-2]
         params = self.total_attenuation()
         params1 = photon_abs_element_list.T    
-        zno = np.arange(1,99)    
+        zno = np.arange(1,100)    
         z_comp = [*self.dict_comp.keys()]
         zeff = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
         func = np.vectorize(lambda i : element(int(i)).mass)
-        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
         
-        # func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        # func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        # zeff = func(params1, self.photon_comp)
+        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        for i in range(80):
+            zeff[i] = func(params1[i], self.photon_comp[i])
         
         dest_filename = 'Save_File/Photon Zeff - Interpolation method'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, self.myu_comp[-3]/self.photon_comp*zeff]}
