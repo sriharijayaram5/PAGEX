@@ -118,6 +118,7 @@ class Compound:
             params = [*self.myu_comp[0:-3], self.myu_comp[-1], self.myu_comp[-3]]
 
         data = {'name' : dest_filename, 'header' : header,'params' : params}
+        data['plot_params'] = [{'para_name' : '\dfrac{\mu}{\\rho}\ \ (cm^{2}/g)', 'value' : self.myu_comp[-3] }]
         return data
 
     def zeff_by_log(self):
@@ -143,7 +144,7 @@ class Compound:
         
         dest_filename = 'Save_File/Photon Zeff - Interpolation method'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, self.myu_comp[-3]/self.photon_comp*zeff]}
-        
+        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : zeff }]
         return data
 
     def zeq_by_R(self, gp=False):
@@ -167,8 +168,8 @@ class Compound:
 
         dest_filename = 'Save_File/Photon Zeq'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeq', 'R'], 'params' : [params[0][0], self.zeq, self.R_comp]}
-    
-        if True:
+        data['plot_params'] = [{'para_name' : 'Z_{eq}', 'value' : self.zeq }]
+        if gp:
             b = self.get_gp('A',1)
             c = self.get_gp('A',2)
             a = self.get_gp('A',3)
@@ -208,7 +209,9 @@ class Compound:
             a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0],dtype=float)
             energy = np.asarray(a[0])
             data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, *self.B, *self.p_BE, *self.BE]}
-            
+            for i, m in enumerate(mfp):
+                data['plot_params'] = [{'para_name' : f'EABF\ at\ {m}\ mfp', 'value' : self.B[i] },
+                                        {'para_name' : f'EBF\ at\ {m}\ mfp', 'value' : self.BE[i] }]
         return data
 
 
@@ -251,6 +254,7 @@ class Compound:
                 'σₐ Average Cross Section per Atom (cm²/atom)',
                 'σₑ Average Cross Section per Electron (cm²/electron)','Zeff',
                 'Neff (electrons/g)'], 'params' : [params[0][0],  self.photon_comp, self.photon_e_comp, self.zeff_ratio,self.myu_comp[-3]/self.photon_e_comp]}
+        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : self.zeff_ratio }]
         return data
 
     def stopping_power_compound_post(self):      
@@ -346,6 +350,8 @@ class Compound:
                 ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, electron_msp, electron_int_cross, self.zeff_ele, electron_msp / electron_int_cross * self.zeff_ele]}
+        data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : electron_msp },
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_ele }]
         return data
         
     def zeff_proton_interaction(self):
@@ -395,6 +401,8 @@ class Compound:
                 ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, msp_comp, proton_int_cross, self.zeff_proton, msp_comp / proton_int_cross * self.zeff_proton]}
+        data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : msp_comp },
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_proton }]
         return data
         
     def zeff_alpha_interaction(self):
@@ -444,6 +452,8 @@ class Compound:
                 ['Energy (MeV)', 'S(E)/ρ (MeV cm²/g)', 
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, msp_comp, alpha_int_cross, self.zeff_alpha, msp_comp / alpha_int_cross * self.zeff_alpha]}
+        data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : msp_comp },
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_alpha }]
         return data
 
 
@@ -489,18 +499,51 @@ class Compound:
             data = {'name' : dest_filename, 'header' : 
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'], 
                     'params' : [x, self.kerma]}
+            data['plot_params'] = [{'para_name' : f'{relative_to_choice}\ KERMA', 'value' : self.kerma }]
         else:    
             dest_filename = 'Save_File/Photon mass-energy absorption coefficients'
             data = {'name' : dest_filename, 'header' : 
                     ['Energy (MeV)', 'MEC μₑₙ/ρ (cm²/g)', 
                     'Z PEAeff', 'N PEAeff (electrons/g)'], 
                     'params' : [x, self.mec_comp1, self.zeff_x, self.mec_comp1/sigmaa*self.zeff_x]}
+            data['plot_params'] = [{'para_name' : '\mu_{en}/\\rho\ (cm^{2}/g)', 'value' : self.mec_comp1 }]
         return data
      
     def write_to_csv(self, data):
         fname = data['name'] + f'-{self.formula_for_text}.csv'
-        X = np.asarray(data['params'])          
+        X = np.asarray(data['params'])    
+        if X[0][0] > 1:
+                X[0] = X[0]/10e6      
         np.savetxt(fname, X.T, header = ', '.join(data['header']), delimiter = ', ', comments = '#', fmt = '%s', encoding = "utf-8")
+    
+    def plot_parameter(self, data):
+        x = data['params'][0]
+        plot_params = data['plot_params']
+        for para in plot_params:    
+            plt.ylabel('$%s$'%para['para_name'], fontname='Calibri')
+            plt.xlabel('$E\ (MeV)$', fontname='Calibri')
+            plt.ticklabel_format(
+                axis='both', style='sci', scilimits=(
+                    0,0), useMathText=True)
+            plt.tick_params(
+                axis='both',direction='in',which='both',top=True,right=True
+            )
+            if x[0] > 1:
+                x = x/10e6
+            name = Substance.from_formula(self.formula_for_text).unicode_name
+            if self.frac_flag:
+                    sub = name +'('
+                    for j in self.weight_fraction:
+                        sub = sub + str(round(j,2)) + ','
+                    sub = sub.strip(',')
+                    name = sub + ')'
+            if para['para_name'] in ['Z_{eff}','Z_{eq}','Relative\KERMA','Z_{PEAeff}']:
+                plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
+            else:
+                plt.loglog(x, para['value'], '-x', markersize=5, label=name)
+            plt.legend(loc='upper right')
+            plt.show()
+            plt.close()
 
     def interpolate_e(self, energy, parameter, new_energy, num=0):
         y=[]
@@ -577,6 +620,12 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         'Electron interaction',
         'Alpha particle interaction'
     ]
+    output_choices = [
+
+        'Write parameter to excel sheet only',
+        'Plot Energy vs. Parameter only',
+        'Do both'
+    ]
     CreateLog(input_log)
     start_time = time.process_time()
     if param == params[0]:
@@ -599,10 +648,16 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         data = comp.zeff_electron_interaction()
     elif param == params[9]:
         data = comp.zeff_alpha_interaction()
-    
-    comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
-    eel.excel_alert("Computation complete!")
+    if output == output_choices[0]:
+        comp.write_to_csv(data)
+    elif output == output_choices[1]:
+        comp.plot_parameter(data)
+    else:
+        comp.write_to_csv(data)
+        comp.plot_parameter(data)
+    del(comp)
+    # eel.excel_alert("Computation complete!")
 
 eel.init('web')
 eel.start('landing2.4.html',size=(1024, 550))
