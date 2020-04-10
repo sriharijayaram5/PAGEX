@@ -168,7 +168,7 @@ class Compound:
         dest_filename = 'Save_File/Photon Zeq'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeq', 'R'], 'params' : [params[0][0], self.zeq, self.R_comp]}
     
-        if gp:
+        if True:
             b = self.get_gp('A',1)
             c = self.get_gp('A',2)
             a = self.get_gp('A',3)
@@ -181,32 +181,33 @@ class Compound:
             xk1 = self.get_gp('B',4)
             d1 = self.get_gp('B',5)
             
-            mfps = np.asarray([float(x) for x in self.mean_free_path.split()])
-            f = lambda i : [(
-                                (c * (x**a)) + d *( (np.tanh( (x/xk)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
-                            ) for x in i]
-            k1 = f(mfps)
+            self.p_B = [b, c, a, xk, d]
+            self.p_BE = [b1, c1, a1, xk1, d1]
             
-            f = lambda i : [np.where(k1==1, np.around(1 +(( b-1 ) * x),3), np.around(1 +( ( (b - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3)) for x in i]
-            self.B = f(mfps)            
-            self.p_B = np.asarray([np.around(b,3), np.around(c,3), np.around(a,3), np.around(xk,3), np.around(d,3) ])
-            #
-            f = lambda i : [(
-                                (c1 * (x**a1)) + d1 *( (np.tanh( (x/xk1)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
-                            ) for x in i]
-            k1 = f(mfps)
+            mfp = [float(x) for x in self.mean_free_path.split()]
+            self.B = np.full((len(mfp), len(b)), np.nan)
+            self.BE = np.full((len(mfp), len(b)), np.nan)
+            for l,mfps in enumerate(mfp):
+                f = lambda x : (
+                                    (c * (x**a)) + d *( (np.tanh( (x/xk)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
+                                ) 
+                k1 = np.asarray(f(mfps))
+                f = lambda x : np.where(k1==1, 1 +(( b-1 ) * x), 1 +( ( (b - 1) * ( k1**x - 1) ) / ( k1 - 1) ))
+                self.B[l] = f(mfps)
+                f = lambda x : (
+                                    (c1 * (x**a1)) + d1 *( (np.tanh( (x/xk1)-2 ) - np.tanh( -2 )) / ( 1 - np.tanh( -2 ) ))
+                                ) 
+                k1 = np.asarray(f(mfps))
+                f = lambda x : np.where(k1==1, 1 +(( b1-1 ) * x), 1 +( ( (b1 - 1) * ( k1**x - 1) ) / ( k1 - 1) )) 
+                self.BE[l] = f(mfps)
             
-            f = lambda i : [np.where(k1==1, np.around(1 +(( b1-1 ) * x),3), np.around(1 +( ( (b1 - 1) * ( k1**x - 1) ) / ( k1 - 1) ),3)) for x in i]
-            self.BE = f(mfps)            
-            self.p_BE = np.asarray([np.around(b1,3), np.around(c1,3), np.around(a1,3), np.around(xk1,3), np.around(d1,3) ])
-
             dest_filename = 'Save_File/G-P fitting parameters and buildup factors'
-            header = ['Energy (MeV)', 'b', 'c', 'a', 'Xk', 'd'] + [f'EABF {i}mfp' for i in mfps]
-            header += ['b', 'c', 'a', 'Xk', 'd'] + [f'EBF {i}mfp' for i in mfps]
+            header = ['Energy (MeV)', 'b', 'c', 'a', 'Xk', 'd'] + [f'EABF {i}mfp' for i in mfp]
+            header += ['b1', 'c1', 'a1', 'Xk1', 'd1'] + [f'EBF {i}mfp' for i in mfp]
             loc = 'ANSI_data/ANSI_'+'A'+'/DATAn_'+'4'
             a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0],dtype=float)
-            energy = a[0]
-            data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, self.B, *self.p_BE, self.BE]}
+            energy = np.asarray(a[0])
+            data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, *self.B, *self.p_BE, *self.BE]}
             
         return data
 
@@ -219,17 +220,19 @@ class Compound:
             loc = 'ANSI_data/ANSI_'+db+'/DATAn_'+zin
             try:
                 a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,param],dtype=float)
-                y1 = a[param]
+                y = a[param]
                 x = a[0]
-                all_y.append(y1)
+                all_y.append(y)
                 all_z.append(j)
             except FileNotFoundError:
                 continue
             
         a = np.asarray(all_y).T
-        b = self.zeq[np.nonzero(np.in1d(self.ta_param[0], x))]
-        f = interp1d(all_z, a, kind = 'cubic')
-        inter_y = f(b)
+        b = self.zeq[np.nonzero(np.in1d(self.ta_param[0][0], x*1000000))]
+        inter_y = np.full_like(b, np.nan)
+        for j,i in enumerate(a):    
+            f = interp1d(all_z, i, kind = 'cubic')
+            inter_y[j] = f(b[j])
         return inter_y
     
     def zeff_by_Ratio(self):
@@ -565,7 +568,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.kerma_1()
+    data = comp.zeq_by_R()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
