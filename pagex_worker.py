@@ -132,7 +132,6 @@ class Compound:
         zeff = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(int(i)).mass)
         
         func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
         for i in range(80):
@@ -151,18 +150,16 @@ class Compound:
         R_comp_2 = np.sum((params.T * self.weight_fraction).T, axis=0)[-1]
         self.R_comp = R_comp_1/R_comp_2
 
-        params = R_element_list.T    
-        zno = np.arange(1,99)    
-        z_comp = self.dict_comp.keys()
+        params1 = R_element_list.T    
+        zno = np.arange(1,100)    
+        z_comp = [*self.dict_comp.keys()]
         self.zeq = np.full(80, np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(int(i)).mass)
-        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
-
-        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        self.zeq = func(params, self.R_comp)    
+        
+        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        for i in range(80):
+            self.zeq[i] = func(params1[i], self.R_comp[i])    
 
         dest_filename = 'Save_File/Photon Zeq'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeq', 'R'], 'params' : [params[0][0], self.zeq, self.R_comp]}
@@ -506,7 +503,7 @@ class Compound:
     def write_to_csv(self, data):
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])          
-        np.savetxt(fname, np.around(X.T,3), header = '\t'.join(data['header']),delimiter='\t', comments='#', fmt = '%s', encoding="utf-8")
+        np.savetxt(fname, np.around(X.T,3), header = ', '.join(data['header']), delimiter = ', ', comments = '#', fmt = '%s', encoding = "utf-8")
 
     def interpolate_e(self, energy, parameter, new_energy, num=0):
         y=[]
@@ -573,7 +570,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeff_by_log()
+    data = comp.zeq_by_R()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
