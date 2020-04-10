@@ -466,7 +466,7 @@ class Compound:
         self.mec_comp1 = np.sum((mec_comp.T * self.weight_fraction).T, axis=0)
         sigmaa = self.mec_comp1 / self.d1()
 
-        loc = 'XRay_Comp1/DATA_' + relative_to_choice
+        loc = 'XRay_Comp1/DATAn_' + relative_to_choice
         self.mec_rel = loadtxt(loc, usecols=(2), unpack=True)
         
         self.kerma = self.mec_comp1 / self.mec_rel
@@ -474,17 +474,15 @@ class Compound:
         ele_x_int_cross = ele_x / self.d1()
         params = ele_x_int_cross.T    
         zno = np.arange(1,93)    
-        z_comp = self.dict_comp.keys()
+        z_comp = [*self.dict_comp.keys()]
+        self.zeff_x = np.full(len(x), np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(int(i)).mass)
-        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
-
-        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        self.zeff_x = func(params, sigmaa) 
-        #mec_comp1[e] / sigmaa[e] * zeff
-        if kerma:
+        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        for i in range(len(x)):
+            self.zeff_x[i] = func(params[i], sigmaa[i]) 
+    
+        if False:
             dest_filename = 'Save_File/Relative KERMA'
             data = {'name' : dest_filename, 'header' : 
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'], 
@@ -494,7 +492,7 @@ class Compound:
             data = {'name' : dest_filename, 'header' : 
                     ['Energy (MeV)', 'MEC μₑₙ/ρ (cm²/g)', 
                     'Z PEAeff', 'N PEAeff (electrons/g)'], 
-                    'params' : [x, mec_comp, self.zeff_x, mec_comp/sigmaa*self.zeff_x]}
+                    'params' : [x, self.mec_comp1, self.zeff_x, self.mec_comp1/sigmaa*self.zeff_x]}
         return data
      
     def write_to_csv(self, data):
@@ -544,7 +542,7 @@ CreateFolder('Save_File')
 @eel.expose
 def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None, comp_2a=None, eflag=False,  mfp=None, density=None, \
     rel_mat=None, custom_energies_list=None):
-    comp = Compound(custom_energies_list, rel_mat, 1, mfp, output, do_what_now, eflag, 
+    comp = Compound(custom_energies_list, 'Air', 1, mfp, output, do_what_now, eflag, 
                     comp_0a, comp_1a, comp_2a, ff1)
     input_log = {}
     now = datetime.now()
@@ -567,7 +565,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeff_alpha_interaction()
+    data = comp.kerma_1()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
