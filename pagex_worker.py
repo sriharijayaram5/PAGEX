@@ -319,7 +319,6 @@ class Compound:
     def zeff_electron_interaction(self):
         x, mass_stopping_power = self.stopping_power_compound_post()
         electron_int_cross = mass_stopping_power / self.d1()
-        print(electron_int_cross)
         electron_msp = mass_stopping_power
         ele_electron_int_cross = np.full((98,81), np.nan)
         for i in range(1, 99):
@@ -485,7 +484,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_x[i] = func(params[i], sigmaa[i]) 
     
-        if False:
+        if kerma:
             dest_filename = 'Save_File/Relative KERMA'
             data = {'name' : dest_filename, 'header' : 
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'], 
@@ -545,7 +544,7 @@ CreateFolder('Save_File')
 @eel.expose
 def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None, comp_2a=None, eflag=False,  mfp=None, density=None, \
     rel_mat=None, custom_energies_list=None):
-    comp = Compound(custom_energies_list, 'Air', 1, mfp, output, do_what_now, eflag, 
+    comp = Compound(custom_energies_list, rel_mat, density, mfp, output, do_what_now, eflag, 
                     comp_0a, comp_1a, comp_2a, ff1)
     input_log = {}
     now = datetime.now()
@@ -565,10 +564,42 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         input_log["Density"] = density
     if mfp is not None:
         input_log["MFP"] = mfp
-    
+    param = do_what_now
+    params = [
+        'Partial/total interaction cross sections and mass attenuation coefficients',
+        'Photon energy absorption coefficients (cm²/g), Z PEAeff, N PEAeff (electrons/g)',
+        'Relative KERMA',
+        'Equivalent atomic number - Zeq',
+        'G-P fitting parameters and buildup factors - EABF, EBF',
+        'Direct method',
+        'Interpolation method',
+        'Proton interaction',
+        'Electron interaction',
+        'Alpha particle interaction'
+    ]
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeq_by_R()
+    if param == params[0]:
+        data = comp.myu()
+    elif param == params[1]:
+        data = comp.kerma_1()
+    elif param == params[2]:
+        data = comp.kerma_1(relative_to_choice =  rel_mat, kerma = True)
+    elif param == params[3]:
+        data = comp.zeq_by_R()
+    elif param == params[4]:
+        data = comp.zeq_by_R(gp = True)
+    elif param == params[5]:
+        data = comp.zeff_by_Ratio()
+    elif param == params[6]:
+        data = comp.zeff_by_log()
+    elif param == params[7]:
+        data = comp.zeff_proton_interaction()
+    elif param == params[8]:
+        data = comp.zeff_electron_interaction()
+    elif param == params[9]:
+        data = comp.zeff_alpha_interaction()
+    
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
