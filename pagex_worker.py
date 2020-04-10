@@ -310,38 +310,34 @@ class Compound:
             dat1[:] = [x for x in dat1 if x != ' ']
             dat1[:] = [x for x in dat1 if x != '\x0c']
             dat1[:] = [x.strip() for x in dat1]
-            d = np.fromstring(dat1, dtype = float, sep = ' ')
-            d = d.reshape((len(d)/7),7).T
-            a, b = d[0], d[3]
+            a, b, = loadtxt(dat1, usecols=(0, 3), unpack=True)
             return a, b
             
     def zeff_electron_interaction(self):
         x, mass_stopping_power = self.stopping_power_compound_post()
         electron_int_cross = mass_stopping_power / self.d1()
+        print(electron_int_cross)
         electron_msp = mass_stopping_power
         ele_electron_int_cross = np.full((98,81), np.nan)
         for i in range(1, 99):
-            z = element(i).atomic_number
-            if z < 10:
-                zin = '00' + str(z)
+            if i < 10:
+                zin = '00' + str(i)
             else:
-                zin = '0' + str(z)
+                zin = '0' + str(i)
             loc = 'EStar_data/DATA' + zin
             a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0,3])
-            y = a[3] / (n / element(i).atomic_weight)
+            y = a[3] / (n / element(i).mass)
             ele_electron_int_cross[i-1] = y
 
         params = ele_electron_int_cross.T    
         zno = np.arange(1,99)    
-        z_comp = self.dict_comp.keys()
+        z_comp = [*self.dict_comp.keys()]
+        self.zeff_ele = np.full((len(x)), np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(int(i)).mass)
-        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
-
-        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        self.zeff_ele = func(params, electron_int_cross) 
+        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        for i in range(len(x)):
+            self.zeff_ele[i] = func(params[i], electron_int_cross[i]) 
 
         dest_filename = 'Save_File/Electron interaction parameters'
         data = {'name' : dest_filename, 'header' : 
@@ -508,7 +504,7 @@ class Compound:
     def write_to_csv(self, data):
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])          
-        np.savetxt(fname, np.around(X.T,3), header = ', '.join(data['header']), delimiter = ', ', comments = '#', fmt = '%s', encoding = "utf-8")
+        np.savetxt(fname, X.T, header = ', '.join(data['header']), delimiter = ', ', comments = '#', fmt = '%s', encoding = "utf-8")
 
     def interpolate_e(self, energy, parameter, new_energy, num=0):
         y=[]
@@ -552,7 +548,7 @@ CreateFolder('Save_File')
 @eel.expose
 def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None, comp_2a=None, eflag=False,  mfp=None, density=None, \
     rel_mat=None, custom_energies_list=None):
-    comp = Compound(custom_energies_list, rel_mat, density, mfp, output, do_what_now, eflag, 
+    comp = Compound(custom_energies_list, rel_mat, 1, mfp, output, do_what_now, eflag, 
                     comp_0a, comp_1a, comp_2a, ff1)
     input_log = {}
     now = datetime.now()
@@ -575,7 +571,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeff_by_log()
+    data = comp.zeff_electron_interaction()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
