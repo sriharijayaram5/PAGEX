@@ -425,19 +425,17 @@ class Compound:
         
         func = np.vectorize(lambda i : element(int(i)).mass)
         b = n / func(np.arange(1,93))
-        ele_alpha_int_cross = all_new_y / b
+        ele_alpha_int_cross = (all_new_y.T / b).T
 
         params = ele_alpha_int_cross.T    
         zno = np.arange(1,93)    
-        z_comp = self.dict_comp.keys()
+        z_comp = [*self.dict_comp.keys()]
+        self.zeff_alpha = np.full(len(x), np.nan)
         
         avg = np.sum(z_comp * self.weight_fraction)
-        func = np.vectorize(lambda i : element(int(i)).mass)
-        # Aavg = np.sum(self.dict_comp.values() * func(z_comp)) / np.sum(self.dict_comp.values())
-
-        func = np.vectorize(lambda pa, ph : InterpolatedUnivariateSpline(zno, pa - ph).roots())
-        func = np.vectorize(lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg)))
-        self.zeff_alpha = func(params, alpha_int_cross) 
+        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        for i in range(len(x)):
+            self.zeff_alpha[i] = func(params[i], alpha_int_cross[i]) 
 
         dest_filename = 'Save_File/Alpha particle interaction parameters'
         data = {'name' : dest_filename, 'header' : 
@@ -569,7 +567,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeff_proton_interaction()
+    data = comp.zeff_alpha_interaction()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
