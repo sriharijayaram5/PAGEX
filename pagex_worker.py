@@ -456,8 +456,6 @@ class Compound:
                                 {'para_name' : 'Z_{eff}', 'value' : self.zeff_alpha }]
         return data
 
-
-
     def kerma_1(self, relative_to_choice='AIR', kerma = False):
         ele_x = []
         for i in range(1, 93):
