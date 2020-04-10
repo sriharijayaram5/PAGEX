@@ -124,8 +124,12 @@ class Compound:
         photon_abs_element_list = loadtxt(
             "element_photo_abs", usecols=(0), unpack=True).reshape((99,80))
         self.myu()
-        self.photon_comp = self.myu_comp[-2]
+        func = np.vectorize(lambda i : element(int(i)).mass)
+        keys = [*self.dict_comp.keys()]
         params = self.total_attenuation()
+        self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-1] / n
+        if self.frac_flag:
+            self.photon_comp = self.myu_comp[-2]
         params1 = photon_abs_element_list.T    
         zno = np.arange(1,100)    
         z_comp = [*self.dict_comp.keys()]
@@ -231,18 +235,19 @@ class Compound:
     def zeff_by_Ratio(self):
         '''Zeff by direct method'''
         params = self.total_attenuation()
+        self.myu()
         func = np.vectorize(lambda i : element(int(i)).mass)
-        keys = self.dict_comp.keys()
-        self.photon_comp = np.sum((params.T * self.number_fraction * func([*keys])).T, axis=0)[-3] / n
-        self.photon_e_comp = np.sum((params.T * self.number_fraction * func([*keys]) / keys).T, axis=0)[-3] / n
+        keys = [*self.dict_comp.keys()]
+        self.photon_comp = np.sum((params.T * self.number_fraction * func(keys)).T, axis=0)[-1] / n
+        self.photon_e_comp = np.sum((params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-1] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
-        
+    
         dest_filename = 'Save_File/Photon Zeff - Direct method'
         data = {'name' : dest_filename, 
-                'header' : ['Energy (MeV)', 'Zeff',
+                'header' : ['Energy (MeV)', 
                 'σₐ Average Cross Section per Atom (cm²/atom)',
-                'σₑ Average Cross Section per Electron (cm²/electron)',
-                'Neff (electrons/g)'], 'params' : [params[0][0], self.zeff_ratio, self.photon_comp, self.photon_e_comp, params[-3]/self.photon_e_comp]}
+                'σₑ Average Cross Section per Electron (cm²/electron)','Zeff',
+                'Neff (electrons/g)'], 'params' : [params[0][0],  self.photon_comp, self.photon_e_comp, self.zeff_ratio,self.myu_comp[-3]/self.photon_e_comp]}
         return data
 
     def stopping_power_compound_post(self):      
@@ -570,7 +575,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     
     CreateLog(input_log)
     start_time = time.process_time()
-    data = comp.zeq_by_R()
+    data = comp.zeff_by_log()
     comp.write_to_csv(data)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     eel.excel_alert("Computation complete!")
