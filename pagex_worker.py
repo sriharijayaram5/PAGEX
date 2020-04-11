@@ -1,30 +1,22 @@
 import os
-import _thread
 from scipy.interpolate import interp1d
 from bs4 import BeautifulSoup
 import requests
-from openpyxl import load_workbook
-from openpyxl import Workbook
 from mendeleev import element
 from numpy import loadtxt, log10, array
 import numpy as np
 import scipy
-from scipy import constants,optimize
+from scipy import constants, optimize
 from scipy.interpolate import InterpolatedUnivariateSpline
 from chempy import Substance
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import style
 import pandas as pd
 from pandas import read_csv
-import math
 import time
-import sqlalchemy
 import eel
 import json
 from datetime import datetime
-import sys
-sys.setrecursionlimit(5000)
 n = scipy.constants.N_A
 
 class Compound:
