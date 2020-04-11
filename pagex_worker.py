@@ -28,14 +28,10 @@ sys.setrecursionlimit(5000)
 n = scipy.constants.N_A
 
 class Compound:
-    def __init__(self, c_en, ic_mat, den_mat, mfp, op, dw, eflag, comp_0, comp_1, comp_2, fflag):    
-        self.custom_energies = c_en
+    def __init__(self, ic_mat, den_mat, mfp, comp_0, comp_1, comp_2, fflag):    
         self.icru_mat = ic_mat
         self.density_mat = den_mat
         self.mean_free_path = mfp
-        self.op = op
-        self.do_what = dw
-        self.energy_flag = eflag
         self.frac_flag = fflag
         self.comp_0 = comp_0
         self.comp_1 = comp_1
@@ -52,11 +48,10 @@ class Compound:
         if self.frac_flag:
             self.weight_fraction = np.asarray(self.weight_frac_list)
 
-        if not self.frac_flag:
-            values = np.asarray([*self.dict_comp.values()])
-            self.number_fraction = values/np.sum(values)
+        values = np.asarray([*self.dict_comp.values()])
+        self.number_fraction = values/np.sum(values)
 
-    def comp_input(self):
+    def _comp_input(self):
         if self.frac_flag:
             za = self.comp_1
             weight_frac_list = self.comp_2.split()
@@ -67,7 +62,7 @@ class Compound:
     
     def fetch_compound(self):
         """This function takes user input of the compound."""
-        za = self.comp_input()
+        za = self._comp_input()
         compound_z_list = za.split()
         compound_z_list = [x.capitalize() for x in compound_z_list]
         za = ''.join(compound_z_list)
@@ -88,7 +83,7 @@ class Compound:
             self.ta_param[i] = data
         return self.ta_param
     
-    def d1(self):
+    def _d1(self):
         func = np.vectorize(lambda i : element(int(i)).mass)
         keys = self.dict_comp.keys()
         denom = self.weight_fraction / func([*keys]) 
@@ -96,7 +91,7 @@ class Compound:
         return denom1
 
     def myu(self):
-        denom1 = self.d1()
+        denom1 = self._d1()
         self.myu_comp = np.ndarray((7,80))
         params = self.total_attenuation()
         self.myu_comp = np.sum((params.T * self.weight_fraction).T, axis=0)
@@ -138,13 +133,17 @@ class Compound:
 
         avg = np.sum(z_comp * self.weight_fraction)
         
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(80):
             zeff[i] = func(params1[i], self.photon_comp[i])
         
         dest_filename = 'Save_File/Photon Zeff - Interpolation method'
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeff', 'Neff (electrons/g)'], 'params' : [params[0][0], zeff, self.myu_comp[-3]/self.photon_comp*zeff]}
-        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : zeff }]
+        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : zeff },
+                                {'para_name' : 'N_{eff}\ (electrons/g)', 'value' : self.myu_comp[-3]/self.photon_comp*zeff}]
         return data
 
     def zeq_by_R(self, gp=False):
@@ -162,7 +161,10 @@ class Compound:
 
         avg = np.sum(z_comp * self.weight_fraction)
         
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(80):
             self.zeq[i] = func(params1[i], self.R_comp[i])    
 
@@ -170,17 +172,17 @@ class Compound:
         data = {'name' : dest_filename, 'header' : ['Energy (MeV)', 'Zeq', 'R'], 'params' : [params[0][0], self.zeq, self.R_comp]}
         data['plot_params'] = [{'para_name' : 'Z_{eq}', 'value' : self.zeq }]
         if gp:
-            b = self.get_gp('A',1)
-            c = self.get_gp('A',2)
-            a = self.get_gp('A',3)
-            xk = self.get_gp('A',4)
-            d = self.get_gp('A',5)
+            b = self._get_gp('A',1)
+            c = self._get_gp('A',2)
+            a = self._get_gp('A',3)
+            xk = self._get_gp('A',4)
+            d = self._get_gp('A',5)
 
-            b1 = self.get_gp('B',1)
-            c1 = self.get_gp('B',2)
-            a1 = self.get_gp('B',3)
-            xk1 = self.get_gp('B',4)
-            d1 = self.get_gp('B',5)
+            b1 = self._get_gp('B',1)
+            c1 = self._get_gp('B',2)
+            a1 = self._get_gp('B',3)
+            xk1 = self._get_gp('B',4)
+            d1 = self._get_gp('B',5)
             
             self.p_B = [b, c, a, xk, d]
             self.p_BE = [b1, c1, a1, xk1, d1]
@@ -208,14 +210,14 @@ class Compound:
             loc = 'ANSI_data/ANSI_'+'A'+'/DATAn_'+'4'
             a = read_csv(loc,delim_whitespace=True,header=None,usecols=[0],dtype=float)
             energy = np.asarray(a[0])
-            data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, *self.B, *self.p_BE, *self.BE]}
+            data = {'name' : dest_filename, 'header' : header, 'params' : [energy, *self.p_B, *self.B, *self.p_BE, *self.BE], 'plot_params' : []}
             for i, m in enumerate(mfp):
-                data['plot_params'] = [{'para_name' : f'EABF\ at\ {m}\ mfp', 'value' : self.B[i] },
-                                        {'para_name' : f'EBF\ at\ {m}\ mfp', 'value' : self.BE[i] }]
+                data['plot_params'].extend([{'para_name' : f'EABF\ at\ {m}\ mfp', 'value' : self.B[i] },
+                                        {'para_name' : f'EBF\ at\ {m}\ mfp', 'value' : self.BE[i] }])
         return data
 
 
-    def get_gp(self, db, param):
+    def _get_gp(self, db, param):
         all_y = []
         all_z = []
         for j in range(4,83):
@@ -254,10 +256,11 @@ class Compound:
                 'σₐ Average Cross Section per Atom (cm²/atom)',
                 'σₑ Average Cross Section per Electron (cm²/electron)','Zeff',
                 'Neff (electrons/g)'], 'params' : [params[0][0],  self.photon_comp, self.photon_e_comp, self.zeff_ratio,self.myu_comp[-3]/self.photon_e_comp]}
-        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : self.zeff_ratio }]
+        data['plot_params'] = [{'para_name' : 'Z_{eff}', 'value' : self.zeff_ratio },
+                               {'para_name' : 'N_{eff}\ (electrons/g)', 'value' : self.myu_comp[-3]/self.photon_e_comp}]
         return data
 
-    def stopping_power_compound_post(self):      
+    def _stopping_power_compound_post(self):      
         formula = []
         for i,e in enumerate(self.dict_comp.keys()):
             formula.extend(
@@ -321,8 +324,8 @@ class Compound:
             return a, b
             
     def zeff_electron_interaction(self):
-        x, mass_stopping_power = self.stopping_power_compound_post()
-        electron_int_cross = mass_stopping_power / self.d1()
+        x, mass_stopping_power = self._stopping_power_compound_post()
+        electron_int_cross = mass_stopping_power / self._d1()
         electron_msp = mass_stopping_power
         ele_electron_int_cross = np.full((98,81), np.nan)
         for i in range(1, 99):
@@ -341,7 +344,10 @@ class Compound:
         self.zeff_ele = np.full((len(x)), np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(len(x)):
             self.zeff_ele[i] = func(params[i], electron_int_cross[i]) 
 
@@ -351,7 +357,8 @@ class Compound:
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, electron_msp, electron_int_cross, self.zeff_ele, electron_msp / electron_int_cross * self.zeff_ele]}
         data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : electron_msp },
-                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_ele }]
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_ele },
+                               {'para_name' : 'N_{eff}\ (electrons/g)', 'value' : electron_msp / electron_int_cross * self.zeff_ele}]
         return data
         
     def zeff_proton_interaction(self):
@@ -380,7 +387,7 @@ class Compound:
 
         msp = all_new_y[np.asarray([*self.dict_comp.keys()])-1]
         msp_comp = np.sum((msp.T * self.weight_fraction).T, axis=0)
-        proton_int_cross = msp_comp / self.d1()
+        proton_int_cross = msp_comp / self._d1()
         
         func = np.vectorize(lambda i : element(int(i)).mass)
         b = n / func(np.arange(1,93))
@@ -392,7 +399,10 @@ class Compound:
         self.zeff_proton = np.full(len(x), np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(len(x)):
             self.zeff_proton[i] = func(params[i], proton_int_cross[i]) 
 
@@ -402,7 +412,8 @@ class Compound:
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, msp_comp, proton_int_cross, self.zeff_proton, msp_comp / proton_int_cross * self.zeff_proton]}
         data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : msp_comp },
-                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_proton }]
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_proton },
+                               {'para_name' : 'N_{eff}\ (electrons/g)', 'value' : msp_comp / proton_int_cross * self.zeff_proton}]
         return data
         
     def zeff_alpha_interaction(self):
@@ -431,7 +442,7 @@ class Compound:
 
         msp = all_new_y[np.asarray([*self.dict_comp.keys()])-1]
         msp_comp = np.sum((msp.T * self.weight_fraction).T, axis=0)
-        alpha_int_cross = msp_comp / self.d1()
+        alpha_int_cross = msp_comp / self._d1()
         
         func = np.vectorize(lambda i : element(int(i)).mass)
         b = n / func(np.arange(1,93))
@@ -443,7 +454,10 @@ class Compound:
         self.zeff_alpha = np.full(len(x), np.nan)
         
         avg = np.sum(z_comp * self.weight_fraction)
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(len(x)):
             self.zeff_alpha[i] = func(params[i], alpha_int_cross[i]) 
 
@@ -453,7 +467,8 @@ class Compound:
                  'Sc (MeV cm²/atom)', 'Zeff', 'Neff (electrons/g)'], 
                 'params' : [x, msp_comp, alpha_int_cross, self.zeff_alpha, msp_comp / alpha_int_cross * self.zeff_alpha]}
         data['plot_params'] = [{'para_name' : 'S(E)/\\rho\ (MeV\ cm^{2}/g)', 'value' : msp_comp },
-                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_alpha }]
+                                {'para_name' : 'Z_{eff}', 'value' : self.zeff_alpha },
+                               {'para_name' : 'N_{eff}\ (electrons/g)', 'value' : msp_comp / alpha_int_cross * self.zeff_alpha}]
         return data
 
     def kerma_1(self, relative_to_choice='AIR', kerma = False):
@@ -474,21 +489,24 @@ class Compound:
 
         mec_comp = ele_x[np.asarray([*self.dict_comp.keys()])-1]
         self.mec_comp1 = np.sum((mec_comp.T * self.weight_fraction).T, axis=0)
-        sigmaa = self.mec_comp1 / self.d1()
+        sigmaa = self.mec_comp1 / self._d1()
 
         loc = 'XRay_Comp1/DATAn_' + relative_to_choice
         self.mec_rel = loadtxt(loc, usecols=(2), unpack=True)
         
         self.kerma = self.mec_comp1 / self.mec_rel
 
-        ele_x_int_cross = ele_x / self.d1()
+        ele_x_int_cross = ele_x / self._d1()
         params = ele_x_int_cross.T    
         zno = np.arange(1,93)    
         z_comp = [*self.dict_comp.keys()]
         self.zeff_x = np.full(len(x), np.nan)
 
         avg = np.sum(z_comp * self.weight_fraction)
-        func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        if not len(self.dict_comp)==1:
+            func = lambda pa, ph : min(InterpolatedUnivariateSpline(zno, pa - ph).roots(), key = lambda x : abs(x - avg))
+        else:
+            func = lambda pa, ph : element(int([*self.dict_comp.keys()][0])).atomic_number
         for i in range(len(x)):
             self.zeff_x[i] = func(params[i], sigmaa[i]) 
     
@@ -512,7 +530,7 @@ class Compound:
         X = np.asarray(data['params'])    
         if X[0][0] > 1:
                 X[0] = X[0]/10e6      
-        np.savetxt(fname, X.T, header = ', '.join(data['header']), delimiter = ', ', comments = '#', fmt = '%s', encoding = "utf-8")
+        np.savetxt(fname, X.T, header = ', '.join(data['header']), delimiter = ', ', fmt = '%s', encoding = "U8")
     
     def plot_parameter(self, data):
         x = data['params'][0]
@@ -535,7 +553,7 @@ class Compound:
                         sub = sub + str(round(j,2)) + ','
                     sub = sub.strip(',')
                     name = sub + ')'
-            if para['para_name'] in ['Z_{eff}','Z_{eq}','Relative\KERMA','Z_{PEAeff}']:
+            if para['para_name'] in ['Z_{eff}','Z_{eq}','Relative\KERMA','Z_{PEAeff}','N_{eff}\ (electrons/g)']:
                 plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
             else:
                 plt.loglog(x, para['value'], '-x', markersize=5, label=name)
@@ -543,29 +561,20 @@ class Compound:
             plt.show()
             plt.close()
 
-    def interpolate_e(self, energy, parameter, new_energy, num=0):
-        y=[]
-        
-        if isinstance(parameter[energy[0]],float): 
-            for j in energy:
-                y.append(parameter[j])
-        else:
-            for j in energy: 
-                y.append(parameter[j][num])
-        f = interp1d(energy,y,kind='cubic')
-        return(f(new_energy))
+def interpolate_e(data, custom_energies):
+        x = np.asarray(data['params'])    
+        if x[0][0] > 1:
+                x[0] = x[0]/10e6
+        energy = np.sort(np.append(x[0], custom_energies), axis = None)
+        new = np.full((len(x), len(energy)), np.nan)
+        new[0] = energy
+        for i, p in enumerate(x[1:]):    
+            inter_kind = 'slinear' if any(x in data['header'][i+1] for x in ['(pair)','(trip)']) else 'cubic'
+            f = interp1d(x[0], p, kind=inter_kind)
+            new[i+1] = f(energy)
+        data['params'] = new
+        return data
 
-    def interpolate_e_linear(self, energy, parameter, new_energy, num=0):
-        y=[]
-        
-        if isinstance(parameter[energy[0]],float): 
-            for j in energy:
-                y.append(parameter[j])
-        else:
-            for j in energy: 
-                y.append(parameter[j][num])
-        f = interp1d(energy,y,kind='slinear')
-        return(f(new_energy))
 
 def CreateFolder(directory):
     try:
@@ -585,7 +594,7 @@ CreateFolder('Save_File')
 @eel.expose
 def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None, comp_2a=None, eflag=False,  mfp=None, density=None, \
     rel_mat=None, custom_energies_list=None):
-    comp = Compound(custom_energies_list, rel_mat, density, mfp, output, do_what_now, eflag, 
+    comp = Compound(rel_mat, density, mfp, 
                     comp_0a, comp_1a, comp_2a, ff1)
     input_log = {}
     now = datetime.now()
@@ -646,6 +655,9 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         data = comp.zeff_electron_interaction()
     elif param == params[9]:
         data = comp.zeff_alpha_interaction()
+    if eflag:
+        ce = np.asarray([float(x) for x in custom_energies_list.split()])
+        data = interpolate_e(data, ce)
     CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
     if output == output_choices[0]:
         comp.write_to_csv(data)
@@ -655,7 +667,6 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         comp.write_to_csv(data)
         comp.plot_parameter(data)
     del(comp)
-    # eel.excel_alert("Computation complete!")
 
 eel.init('web')
 eel.start('landing2.4.html',size=(1024, 550))
