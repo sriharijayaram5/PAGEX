@@ -525,7 +525,7 @@ class Compound:
         np.savetxt(fname, X.T, header = ', '.join(data['header']), delimiter = ', ', fmt = '%s', encoding = "U8")
     
     def plot_parameter(self, data):
-        x = data['params'][0]
+        x = data['old_energy']
         plot_params = data['plot_params']
         for para in plot_params:    
             plt.ylabel('$%s$'%para['para_name'], fontname='Calibri')
@@ -647,6 +647,7 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
         data = comp.zeff_electron_interaction()
     elif param == params[9]:
         data = comp.zeff_alpha_interaction()
+    data['old_energy'] = data['params'][0]
     if eflag:
         ce = np.asarray([float(x) for x in custom_energies_list.split()])
         data = interpolate_e(data, ce)
@@ -656,8 +657,8 @@ def main1( comp_0a=None, do_what_now=None, output=None, ff1=False, comp_1a=None,
     elif output == output_choices[1]:
         comp.plot_parameter(data)
     else:
-        comp.write_to_csv(data)
         comp.plot_parameter(data)
+        comp.write_to_csv(data)
     del(comp)
 
 eel.init('web')
