@@ -10,7 +10,7 @@ from scipy import constants, optimize
 from scipy.interpolate import InterpolatedUnivariateSpline
 from chempy import Substance
 import matplotlib as mpl
-mpl.use('TKAgg', warn = False, force = True)
+mpl.use('TKAgg', force = True)
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas import read_csv
