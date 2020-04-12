@@ -2,5 +2,3 @@
 * text=auto
 * linguist-vendored
 *.py linguist-vendored=false
-*.html linguist-vendored=false
-*.js linguist-vendored=false
