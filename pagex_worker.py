@@ -514,7 +514,10 @@ class Compound:
                     ['Energy (MeV)', 'MEC μₑₙ/ρ (cm²/g)', 
                     'Z PEAeff', 'N PEAeff (electrons/g)'], 
                     'params' : [x, self.mec_comp1, self.zeff_x, self.mec_comp1/sigmaa*self.zeff_x]}
-            data['plot_params'] = [{'para_name' : '\mu_{en}/\\rho\ (cm^{2}/g)', 'value' : self.mec_comp1 }]
+            data['plot_params'] = [{'para_name' : '\mu_{en}/\\rho\ (cm^{2}/g)', 'value' : self.mec_comp1 },
+                                   {'para_name' : 'Z_{PEAeff}', 'value' : self.zeff_x },
+                                   {'para_name' : 'N_{PEAeff}\ (electrons/g)', 'value' : self.mec_comp1/sigmaa*self.zeff_x }]
+
         return data
      
     def write_to_csv(self, data):
