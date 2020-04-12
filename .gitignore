@@ -33,4 +33,6 @@
 *.log.*
 #
 Trials
+Excel_Sheets
+Save_File
 .vscode
