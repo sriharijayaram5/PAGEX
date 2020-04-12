@@ -330,24 +330,24 @@
             if (true) {
                 if (['Electron interaction'].includes(do_what1)){
                     var low = 0.001; var high = 1000;
-                    document.getElementById("custom_energies").placeholder =  "10e-3 < E < 10e3"
+                    document.getElementById("custom_energies").placeholder =  "Range: 10e-3 < E < 10e3"
                 }
                 else if (['Partial/total interaction cross sections and mass attenuation coefficients',
                          'Direct method', 'Interpolation method', 'Equivalent atomic number - Zeq'].includes(do_what1)){
                     var low = 0.001; var high = 100000; 
-                    document.getElementById("custom_energies").placeholder =  "10e-3 < E < 10e5"
+                    document.getElementById("custom_energies").placeholder =  "Range: 10e-3 < E < 10e5"
                 }
                 else if (['Alpha particle interaction'].includes(do_what1)){
                     var low = 0.01; var high = 1000; 
-                    document.getElementById("custom_energies").placeholder =  "10e-2 < E < 10e3"
+                    document.getElementById("custom_energies").placeholder =  "Range: 10e-2 < E < 10e3"
                 }
                 else if (['Proton interaction'].includes(do_what1)){
                     var low = 0.001; var high = 10000; 
-                    document.getElementById("custom_energies").placeholder =  "10e-3 < E < 10e4"
+                    document.getElementById("custom_energies").placeholder =  "Range: 10e-3 < E < 10e4"
                 }
                 else {
                     var low = 0.001; var high = 20;
-                    document.getElementById("custom_energies").placeholder =  "10e-3 < E < 2x10e1" 
+                    document.getElementById("custom_energies").placeholder =  "Range: 10e-3 < E < 2x10e1" 
                 }
             }
         }
@@ -413,7 +413,7 @@
                     </div>
                 </div>
                 <label for="custom_energies">Enter custom energies (MeV): </label>
-                <input type="text" name="custom_energies" id="custom_energies" placeholder="10e-3 < E < 10e5" disabled = true  pattern = "^^[0-9\s\.]+$"><br>
+                <input type="text" name="custom_energies" id="custom_energies" placeholder="Range: 10e-3 < E < 10e5" disabled = true  pattern = "^^[0-9\s\.]+$"><br>
                 <div class = "subtext" align='justify'>Note: Energies must be in the range as specified for each parameter. Energy entries must be separated by space only. </div>
                 </div>
             </div>
