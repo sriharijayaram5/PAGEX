@@ -14,25 +14,9 @@
 .*.swp
 .DS_store
 
-# Local config directories
-/config/qo-config
-/config/local
-
-# Simulated Subversion default ignores end here
-# The contents of the svn:ignore property on the branch root.
-/crash.log
-/tempLog.txt
-/.idea
-/thirdparty
-/documentation/generated
-/documentation/images
-/Data
-
 # log files
 *.log
-*.log.*
-#
-Trials
+Trials/
 Excel_Sheets
-Save_File
+Save_File/
 .vscode

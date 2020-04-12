@@ -12,7 +12,7 @@ A complete package for computation of various radiation interaction parameters u
 - Run the following commands in your command prompt in the directory you wish to install a virtual python environment.
 - 
         pip install virtualenv
-        virtual env my_env_name
+        virtualenv my_env_name
         my_env_name/Scripts/activate.bat
 -   Navigate to the PAGEX directory.
 -   
