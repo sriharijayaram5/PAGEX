@@ -11,15 +11,15 @@ A complete package for computation of various radiation interaction parameters u
 - Install python3.x from https://www.python.org/downloads/.
 - Run the following commands in your command prompt in the directory you wish to install a virtual python environment.
 - 
-        pip install virtualenv
+        pip3 install virtualenv
         virtualenv my_env_name
         my_env_name/Scripts/activate.bat
 -   Navigate to the PAGEX directory.
 -   
-        pip install -r requirements.txt
+        pip3 install -r requirements.txt
 -   You can now run the PAGEX program by the following command:  
 -   
-        python pagex_worker.py
+        python3 pagex_worker.py
 
 Various parameters and their relevant atomic number and energy range computed by PAGEX are as follows: 
 ### For photon interaction:
