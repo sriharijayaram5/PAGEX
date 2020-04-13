@@ -22,11 +22,11 @@ n = scipy.constants.N_A
 
 
 class Compound:
-    def __init__(self, ic_mat=None, den_mat=None, mfp=None, comp_0=None, comp_1=None, comp_2=None, fflag=False):
+    def __init__(self, icru_mat=None, density_mat=None, mfp=None, comp=None, constit=None, wfrac=None, fflag=False):
         ''' Initialises necessary local vars
         @params
-        ic_mat: str - ICRU material for relative KERMA calc. List in files. default = None
-        den_mat: str - Density of material for electron interaction. default = None
+        icru_mat: str - ICRU material for relative KERMA calc. List in files. default = None
+        density_mat: str - Density of material for electron interaction. default = None
         mfp: str - Mean free path values sep. by ' ' for GP Fitting and EBF, EABF. default = None
         comp_0: str - Compound with constituents and number of constituents sep by ' '. default = None
             comp_1: str - Compound constituents sep by ' '. For known weight frac. like input. default = None
@@ -34,13 +34,13 @@ class Compound:
         fflag = bool - Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2
 
         '''
-        self.icru_mat = ic_mat
-        self.density_mat = den_mat
+        self.icru_mat = icru_mat
+        self.density_mat = density_mat
         self.mean_free_path = mfp
         self.frac_flag = fflag
-        self.comp_0 = comp_0
-        self.comp_1 = comp_1
-        self.comp_2 = comp_2
+        self.comp_0 = comp
+        self.comp_1 = constit
+        self.comp_2 = wfrac
         self.weight_frac_list = []
         self.fetch_compound()
         self.calc_weight_fraction()
@@ -675,7 +675,7 @@ class Compound:
 
         return self.data
 
-    def write_to_csv(self, data):
+    def write_to_csv(self, data=None):
         if __name__ != '__main__':
             data = self.data
         fname = data['name'] + f'-{self.formula_for_text}.csv'
@@ -685,9 +685,10 @@ class Compound:
         np.savetxt(fname, X.T, header=', '.join(
             data['header']), delimiter=', ', fmt='%s', encoding="U8")
 
-    def plot_parameter(self, data):
+    def plot_parameter(self, data=None):
         if __name__ != '__main__':
             data = self.data
+            data['old_energy'] = data['params'][0]
         x = data['old_energy']
         plot_params = data['plot_params']
         for para in plot_params:
