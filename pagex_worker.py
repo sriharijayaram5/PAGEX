@@ -657,7 +657,7 @@ class Compound:
                     self.zeff_x]}
             data['plot_params'] = [
                 {
-                    'para_name': r'\mu_{en}/\\rho\ (cm^{2}/g)', 'value': self.mec_comp1}, {
+                    'para_name': '\mu_{en}/\\rho\ (cm^{2}/g)', 'value': self.mec_comp1}, {
                     'para_name': 'Z_{PEAeff}', 'value': self.zeff_x}, {
                     'para_name': 'N_{PEAeff}\ (electrons/g)', 'value': self.mec_comp1 / sigmaa * self.zeff_x}]
 
@@ -676,7 +676,7 @@ class Compound:
         plot_params = data['plot_params']
         for para in plot_params:
             plt.ylabel('$%s$' % para['para_name'], fontname='Calibri')
-            plt.xlabel(r'$E\ (MeV)$', fontname='Calibri')
+            plt.xlabel('$E\ (MeV)$', fontname='Calibri')
             plt.ticklabel_format(
                 axis='both', style='sci', scilimits=(
                     0, 0), useMathText=True)
@@ -695,9 +695,9 @@ class Compound:
             if para['para_name'] in [
                 'Z_{eff}',
                 'Z_{eq}',
-                r'Relative\KERMA',
+                'Relative\KERMA',
                 'Z_{PEAeff}',
-                    r'N_{eff}\ (electrons/g)']:
+                    'N_{eff}\ (electrons/g)']:
                 plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
             else:
                 plt.loglog(x, para['value'], '-x', markersize=5, label=name)
