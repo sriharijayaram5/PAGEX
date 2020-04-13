@@ -17,9 +17,16 @@ A complete package for computation of various radiation interaction parameters u
 -   Navigate to the PAGEX directory.
 -   
         pip3 install -r requirements.txt
--   You can now run the PAGEX program by the following command:  
+-   You can now run the PAGEX program GUI by the following command:  
 -   
         python3 pagex_worker.py
+- The program can also be run from terminal by importing the `Compound` class:
+-
+        from pagex_worker import Compound
+        my_comp = Compound(comp='C 6 H 12 O 6')
+        my_comp.myu()
+        my_comp.plot_parameter()
+        my_comp.write_to_csv()
 
 Various parameters and their relevant atomic number and energy range computed by PAGEX are as follows: 
 ### For photon interaction:
