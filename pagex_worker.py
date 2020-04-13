@@ -36,10 +36,10 @@ class Compound:
         self.comp_2 = wfrac
         self.weight_frac_list = []
         self._fetch_compound()
-        self._calc_weight_fraction()
+        self.calc_weight_fraction()
         self.data = None
 
-    def _calc_weight_fraction(self):
+    def calc_weight_fraction(self):
         keys = self.dict_comp.keys()
         func = np.vectorize(lambda i: element(int(i)).mass * self.dict_comp[i])
         keys = func([*keys])
@@ -49,6 +49,7 @@ class Compound:
 
         values = np.asarray([*self.dict_comp.values()])
         self.number_fraction = values / np.sum(values)
+        return self.weight_fraction
 
     def _comp_input(self):
         if self.frac_flag:
