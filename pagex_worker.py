@@ -22,7 +22,18 @@ n = scipy.constants.N_A
 
 
 class Compound:
-    def __init__(self, ic_mat, den_mat, mfp, comp_0, comp_1, comp_2, fflag):
+    def __init__(self, ic_mat=None, den_mat=None, mfp=None, comp_0=None, comp_1=None, comp_2=None, fflag=False):
+        ''' Initialises necessary local vars
+        @params
+        ic_mat: str - ICRU material for relative KERMA calc. List in files. default = None
+        den_mat: str - Density of material for electron interaction. default = None
+        mfp: str - Mean free path values sep. by ' ' for GP Fitting and EBF, EABF. default = None
+        comp_0: str - Compound with constituents and number of constituents sep by ' '. default = None
+            comp_1: str - Compound constituents sep by ' '. For known weight frac. like input. default = None
+            comp_2: str - Compound weight frac sep by ' '. Must give fflag = True if comp_1, comp_2 is used. default = None
+        fflag = bool - Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2
+
+        '''
         self.icru_mat = ic_mat
         self.density_mat = den_mat
         self.mean_free_path = mfp
@@ -33,6 +44,7 @@ class Compound:
         self.weight_frac_list = []
         self.fetch_compound()
         self.calc_weight_fraction()
+        self.data = None
 
     def calc_weight_fraction(self):
         keys = self.dict_comp.keys()
@@ -134,10 +146,10 @@ class Compound:
             params = [*self.myu_comp[0:-3],
                       self.myu_comp[-1], self.myu_comp[-3]]
 
-        data = {'name': dest_filename, 'header': header, 'params': params}
-        data['plot_params'] = [
+        self.data = {'name': dest_filename, 'header': header, 'params': params}
+        self.data['plot_params'] = [
             {'para_name': '\dfrac{\mu}{\\rho}\ \ (cm^{2}/g)', 'value': self.myu_comp[-3]}]
-        return data
+        return self.data
 
     def zeff_by_log(self):
         photon_abs_element_list = loadtxt(
@@ -167,16 +179,16 @@ class Compound:
             zeff[i] = func(params1[i], self.photon_comp[i])
 
         dest_filename = 'Save_File/Photon Zeff - Interpolation method'
-        data = {'name': dest_filename,
+        self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'Zeff',
                            'Neff (electrons/g)'],
                 'params': [params[0][0],
                            zeff,
                            self.myu_comp[-3] / self.photon_comp * zeff]}
-        data['plot_params'] = [{'para_name': 'Z_{eff}', 'value': zeff}, {
+        self.data['plot_params'] = [{'para_name': 'Z_{eff}', 'value': zeff}, {
             'para_name': 'N_{eff}\ (electrons/g)', 'value': self.myu_comp[-3] / self.photon_comp * zeff}]
-        return data
+        return self.data
 
     def zeq_by_R(self, gp=False):
         R_element_list = loadtxt("element_R", usecols=(
@@ -204,11 +216,11 @@ class Compound:
             self.zeq[i] = func(params1[i], self.R_comp[i])
 
         dest_filename = 'Save_File/Photon Zeq'
-        data = {
+        self.data = {
             'name': dest_filename, 'header': [
                 'Energy (MeV)', 'Zeq', 'R'], 'params': [
                 params[0][0], self.zeq, self.R_comp]}
-        data['plot_params'] = [{'para_name': 'Z_{eq}', 'value': self.zeq}]
+        self.data['plot_params'] = [{'para_name': 'Z_{eq}', 'value': self.zeq}]
         if gp:
             b = self._get_gp('A', 1)
             c = self._get_gp('A', 2)
@@ -256,7 +268,7 @@ class Compound:
             a = read_csv(loc, delim_whitespace=True,
                          header=None, usecols=[0], dtype=float)
             energy = np.asarray(a[0])
-            data = {
+            self.data = {
                 'name': dest_filename,
                 'header': header,
                 'params': [
@@ -267,9 +279,9 @@ class Compound:
                     *self.BE],
                 'plot_params': []}
             for i, m in enumerate(mfp):
-                data['plot_params'].extend([{'para_name': f'EABF\ at\ {m}\ mfp', 'value': self.B[i]},
+                self.data['plot_params'].extend([{'para_name': f'EABF\ at\ {m}\ mfp', 'value': self.B[i]},
                                             {'para_name': f'EBF\ at\ {m}\ mfp', 'value': self.BE[i]}])
-        return data
+        return self.data
 
     def _get_gp(self, db, param):
         all_y = []
@@ -308,7 +320,7 @@ class Compound:
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
 
         dest_filename = 'Save_File/Photon Zeff - Direct method'
-        data = {'name': dest_filename,
+        self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'σₐ Average Cross Section per Atom (cm²/atom)',
                            'σₑ Average Cross Section per Electron (cm²/electron)',
@@ -319,9 +331,9 @@ class Compound:
                            self.photon_e_comp,
                            self.zeff_ratio,
                            self.myu_comp[-3] / self.photon_e_comp]}
-        data['plot_params'] = [{'para_name': 'Z_{eff}', 'value': self.zeff_ratio}, {
+        self.data['plot_params'] = [{'para_name': 'Z_{eff}', 'value': self.zeff_ratio}, {
             'para_name': 'N_{eff}\ (electrons/g)', 'value': self.myu_comp[-3] / self.photon_e_comp}]
-        return data
+        return self.data
 
     def _stopping_power_compound_post(self):
         formula = []
@@ -420,7 +432,7 @@ class Compound:
             self.zeff_ele[i] = func(params[i], electron_int_cross[i])
 
         dest_filename = 'Save_File/Electron interaction parameters'
-        data = {
+        self.data = {
             'name': dest_filename,
             'header': [
                 'Energy (MeV)',
@@ -436,13 +448,13 @@ class Compound:
                 electron_msp /
                 electron_int_cross *
                 self.zeff_ele]}
-        data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
+        self.data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
                                 'value': electron_msp},
                                {'para_name': 'Z_{eff}',
                                 'value': self.zeff_ele},
                                {'para_name': 'N_{eff}\ (electrons/g)',
                                 'value': electron_msp / electron_int_cross * self.zeff_ele}]
-        return data
+        return self.data
 
     def zeff_proton_interaction(self):
         good_z = np.arange(1, 93)
@@ -493,7 +505,7 @@ class Compound:
             self.zeff_proton[i] = func(params[i], proton_int_cross[i])
 
         dest_filename = 'Save_File/Proton interaction parameters'
-        data = {
+        self.data = {
             'name': dest_filename,
             'header': [
                 'Energy (MeV)',
@@ -509,13 +521,13 @@ class Compound:
                 msp_comp /
                 proton_int_cross *
                 self.zeff_proton]}
-        data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
+        self.data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
                                 'value': msp_comp},
                                {'para_name': 'Z_{eff}',
                                 'value': self.zeff_proton},
                                {'para_name': 'N_{eff}\ (electrons/g)',
                                 'value': msp_comp / proton_int_cross * self.zeff_proton}]
-        return data
+        return self.data
 
     def zeff_alpha_interaction(self):
         good_z = np.arange(1, 93)
@@ -566,7 +578,7 @@ class Compound:
             self.zeff_alpha[i] = func(params[i], alpha_int_cross[i])
 
         dest_filename = 'Save_File/Alpha particle interaction parameters'
-        data = {
+        self.data = {
             'name': dest_filename,
             'header': [
                 'Energy (MeV)',
@@ -582,13 +594,13 @@ class Compound:
                 msp_comp /
                 alpha_int_cross *
                 self.zeff_alpha]}
-        data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
+        self.data['plot_params'] = [{'para_name': 'S(E)/\\rho\ (MeV\ cm^{2}/g)',
                                 'value': msp_comp},
                                {'para_name': 'Z_{eff}',
                                 'value': self.zeff_alpha},
                                {'para_name': 'N_{eff}\ (electrons/g)',
                                 'value': msp_comp / alpha_int_cross * self.zeff_alpha}]
-        return data
+        return self.data
 
     def kerma_1(self, relative_to_choice='AIR', kerma=False):
         ele_x = []
@@ -634,14 +646,14 @@ class Compound:
 
         if kerma:
             dest_filename = 'Save_File/Relative KERMA'
-            data = {'name': dest_filename, 'header':
+            self.data = {'name': dest_filename, 'header':
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'],
                     'params': [x, self.kerma]}
-            data['plot_params'] = [
+            self.data['plot_params'] = [
                 {'para_name': f'{relative_to_choice}\ KERMA', 'value': self.kerma}]
         else:
             dest_filename = 'Save_File/Photon mass-energy absorption coefficients'
-            data = {
+            self.data = {
                 'name': dest_filename,
                 'header': [
                     'Energy (MeV)',
@@ -655,15 +667,17 @@ class Compound:
                     self.mec_comp1 /
                     sigmaa *
                     self.zeff_x]}
-            data['plot_params'] = [
+            self.data['plot_params'] = [
                 {
-                    'para_name': r'\mu_{en}/\\rho\ (cm^{2}/g)', 'value': self.mec_comp1}, {
+                    'para_name': '\mu_{en}/\\rho\ (cm^{2}/g)', 'value': self.mec_comp1}, {
                     'para_name': 'Z_{PEAeff}', 'value': self.zeff_x}, {
                     'para_name': 'N_{PEAeff}\ (electrons/g)', 'value': self.mec_comp1 / sigmaa * self.zeff_x}]
 
-        return data
+        return self.data
 
     def write_to_csv(self, data):
+        if __name__ != '__main__':
+            data = self.data
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])
         if X[0][0] > 1:
@@ -672,11 +686,13 @@ class Compound:
             data['header']), delimiter=', ', fmt='%s', encoding="U8")
 
     def plot_parameter(self, data):
+        if __name__ != '__main__':
+            data = self.data
         x = data['old_energy']
         plot_params = data['plot_params']
         for para in plot_params:
             plt.ylabel('$%s$' % para['para_name'], fontname='Calibri')
-            plt.xlabel(r'$E\ (MeV)$', fontname='Calibri')
+            plt.xlabel('$E\ (MeV)$', fontname='Calibri')
             plt.ticklabel_format(
                 axis='both', style='sci', scilimits=(
                     0, 0), useMathText=True)
@@ -695,9 +711,9 @@ class Compound:
             if para['para_name'] in [
                 'Z_{eff}',
                 'Z_{eq}',
-                r'Relative\KERMA',
+                'Relative\KERMA',
                 'Z_{PEAeff}',
-                    r'N_{eff}\ (electrons/g)']:
+                    'N_{eff}\ (electrons/g)']:
                 plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
             else:
                 plt.loglog(x, para['value'], '-x', markersize=5, label=name)
@@ -735,97 +751,95 @@ def CreateLog(dat1, loc="InputLog.log"):
         text_file.write(json.dumps(dat1))
         text_file.write('\n')
 
+if __name__ == '__main__':
+    CreateFolder('Save_File')
+    @eel.expose
+    def main(
+            comp_0a=None,
+            do_what_now=None,
+            output=None,
+            ff1=False,
+            comp_1a=None,
+            comp_2a=None,
+            eflag=False,
+            mfp=None,
+            density=None,
+            rel_mat=None,
+            custom_energies_list=None):
+        comp = Compound(rel_mat, density, mfp,
+                        comp_0a, comp_1a, comp_2a, ff1)
+        input_log = {}
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        input_log["Log time"] = dt_string
+        if ff1:
+            input_log["Elements"] = comp_1a
+            input_log["Weight Fraction"] = comp_2a
+        else:
+            input_log["Compound"] = comp_0a
+        input_log["Parameter"] = do_what_now
+        if not eflag:
+            input_log["Energies"] = custom_energies_list
+        if rel_mat is not None:
+            input_log["KERMA Material"] = rel_mat
+        if density is not None:
+            input_log["Density"] = density
+        if mfp is not None:
+            input_log["MFP"] = mfp
+        param = do_what_now
+        params = [
+            'Partial/total interaction cross sections and mass attenuation coefficients',
+            'Photon energy absorption coefficients (cm²/g), Z PEAeff, N PEAeff (electrons/g)',
+            'Relative KERMA',
+            'Equivalent atomic number - Zeq',
+            'G-P fitting parameters and buildup factors - EABF, EBF',
+            'Direct method',
+            'Interpolation method',
+            'Proton interaction',
+            'Electron interaction',
+            'Alpha particle interaction']
+        output_choices = [
 
-CreateFolder('Save_File')
-
-
-@eel.expose
-def main1(
-        comp_0a=None,
-        do_what_now=None,
-        output=None,
-        ff1=False,
-        comp_1a=None,
-        comp_2a=None,
-        eflag=False,
-        mfp=None,
-        density=None,
-        rel_mat=None,
-        custom_energies_list=None):
-    comp = Compound(rel_mat, density, mfp,
-                    comp_0a, comp_1a, comp_2a, ff1)
-    input_log = {}
-    now = datetime.now()
-    dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-    input_log["Log time"] = dt_string
-    if ff1:
-        input_log["Elements"] = comp_1a
-        input_log["Weight Fraction"] = comp_2a
-    else:
-        input_log["Compound"] = comp_0a
-    input_log["Parameter"] = do_what_now
-    if not eflag:
-        input_log["Energies"] = custom_energies_list
-    if rel_mat is not None:
-        input_log["KERMA Material"] = rel_mat
-    if density is not None:
-        input_log["Density"] = density
-    if mfp is not None:
-        input_log["MFP"] = mfp
-    param = do_what_now
-    params = [
-        'Partial/total interaction cross sections and mass attenuation coefficients',
-        'Photon energy absorption coefficients (cm²/g), Z PEAeff, N PEAeff (electrons/g)',
-        'Relative KERMA',
-        'Equivalent atomic number - Zeq',
-        'G-P fitting parameters and buildup factors - EABF, EBF',
-        'Direct method',
-        'Interpolation method',
-        'Proton interaction',
-        'Electron interaction',
-        'Alpha particle interaction']
-    output_choices = [
-
-        'Write parameter to excel sheet only',
-        'Plot Energy vs. Parameter only',
-        'Do both'
-    ]
-    CreateLog(input_log)
-    start_time = time.process_time()
-    if param == params[0]:
-        data = comp.myu()
-    elif param == params[1]:
-        data = comp.kerma_1()
-    elif param == params[2]:
-        data = comp.kerma_1(relative_to_choice=rel_mat, kerma=True)
-    elif param == params[3]:
-        data = comp.zeq_by_R()
-    elif param == params[4]:
-        data = comp.zeq_by_R(gp=True)
-    elif param == params[5]:
-        data = comp.zeff_by_Ratio()
-    elif param == params[6]:
-        data = comp.zeff_by_log()
-    elif param == params[7]:
-        data = comp.zeff_proton_interaction()
-    elif param == params[8]:
-        data = comp.zeff_electron_interaction()
-    elif param == params[9]:
-        data = comp.zeff_alpha_interaction()
-    data['old_energy'] = data['params'][0]
-    if eflag:
-        ce = np.asarray([float(x) for x in custom_energies_list.split()])
-        data = interpolate_e(data, ce)
-    CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
-    if output == output_choices[0]:
-        comp.write_to_csv(data)
-    elif output == output_choices[1]:
-        comp.plot_parameter(data)
-    else:
-        comp.plot_parameter(data)
-        comp.write_to_csv(data)
-    del(comp)
+            'Write parameter to excel sheet only',
+            'Plot Energy vs. Parameter only',
+            'Do both'
+        ]
+        CreateLog(input_log)
+        start_time = time.process_time()
+        if param == params[0]:
+            data = comp.myu()
+        elif param == params[1]:
+            data = comp.kerma_1()
+        elif param == params[2]:
+            data = comp.kerma_1(relative_to_choice=rel_mat, kerma=True)
+        elif param == params[3]:
+            data = comp.zeq_by_R()
+        elif param == params[4]:
+            data = comp.zeq_by_R(gp=True)
+        elif param == params[5]:
+            data = comp.zeff_by_Ratio()
+        elif param == params[6]:
+            data = comp.zeff_by_log()
+        elif param == params[7]:
+            data = comp.zeff_proton_interaction()
+        elif param == params[8]:
+            data = comp.zeff_electron_interaction()
+        elif param == params[9]:
+            data = comp.zeff_alpha_interaction()
+        data['old_energy'] = data['params'][0]
+        if eflag:
+            ce = np.asarray([float(x) for x in custom_energies_list.split()])
+            data = interpolate_e(data, ce)
+        CreateLog(f'Time elapsed: {time.process_time() - start_time}s')
+        if output == output_choices[0]:
+            comp.write_to_csv(data)
+        elif output == output_choices[1]:
+            comp.plot_parameter(data)
+        else:
+            comp.plot_parameter(data)
+            comp.write_to_csv(data)
+        del(comp)
 
 
-eel.init('web')
-eel.start('landing2.4.html', size=(1024, 550))
+    eel.init('web')
+    eel.start('landing2.4.html', size=(1024, 550))
