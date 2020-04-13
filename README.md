@@ -20,7 +20,7 @@ A complete package for computation of various radiation interaction parameters u
 -   You can now run the PAGEX program GUI by the following command:  
 -   
         python3 pagex_worker.py
-The program can also be run from terminal by importing the python terminal by importing `Compound` class:
+- The program can also be run from terminal by importing the python terminal by importing `Compound` class:
 -
         from pagex_worker import Compound
         my_comp = Compound(comp='C 6 H 12 O 6)
