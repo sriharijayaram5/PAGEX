@@ -23,7 +23,7 @@ A complete package for computation of various radiation interaction parameters u
 - The program can also be run from terminal by importing the python terminal by importing `Compound` class:
 -
         from pagex_worker import Compound
-        my_comp = Compound(comp='C 6 H 12 O 6)
+        my_comp = Compound(comp='C 6 H 12 O 6')
         my_comp.myu()
         my_comp.plot_parameter()
         my_comp.write_to_csv()
