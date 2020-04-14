@@ -27,7 +27,12 @@ A complete package for computation of various radiation interaction parameters u
         my_comp.myu()
         my_comp.plot_parameter()
         my_comp.write_to_csv()
-
+        #To run gui
+        import pagex_worker
+        pagex_worker.run_gui()
+- An iPython terminal is recommended for terminal use. See docstring for help and arguments.
+-
+        help(my_comp.myu)
 Various parameters and their relevant atomic number and energy range computed by PAGEX are as follows: 
 ### For photon interaction:
 
