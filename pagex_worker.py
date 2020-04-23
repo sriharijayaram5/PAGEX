@@ -869,6 +869,8 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     del(comp)
 
 def run_gui():
+    '''Starts the program with a web brower based GUI for easy input and a help page.
+    '''
     eel.init('web')
     try:
         eel.start('landing2.4.html', size=(1024, 550))
