@@ -631,7 +631,7 @@ class Compound:
     def kerma_1(self, relative_to_choice='AIR', kerma=False):
         '''Returns Relative KERMA or Photon mass-energy absorption coefficients
         @params
-        relative_to_choice: str - see readme or files
+        relative_to_choice: str - Default = 'AIR' | for more see readme or files
         kerma: bool - Default = False | For kerma calc.
         @return data: dict - dict['params'] for parameters
         '''
