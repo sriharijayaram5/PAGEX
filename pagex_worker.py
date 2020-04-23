@@ -710,6 +710,8 @@ class Compound:
         return self.data
 
     def write_to_csv(self):
+        '''Write data of previously run function to .csv file in current directory.
+        '''
         data = self.data
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])
@@ -720,6 +722,8 @@ class Compound:
         print('Data saved at: ',os.getcwd()+fname)
 
     def plot_parameter(self):
+        '''Plot the relevant parameters of previously run function.
+        '''
         data = self.data
         x = data['old_energy']
         plot_params = data['plot_params']
@@ -756,6 +760,10 @@ class Compound:
 
 
     def interpolate_e(self, custom_energies):
+        '''Interpolates parameter values at defined custom energies for the previously run function.
+        @params: custom_energies - list | Energies to interpolate in Mev, details in readme
+        @return: data - dict | data with now interpolated values. Can also be written to csv with write_to_csv
+        '''
         data = self.data
         x = np.asarray(data['params'])
         if x[0][0] > 1:
@@ -821,7 +829,6 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
         'Electron interaction',
         'Alpha particle interaction']
     output_choices = [
-
         'Write parameter to excel sheet only',
         'Plot Energy vs. Parameter only',
         'Do both'
