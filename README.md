@@ -282,7 +282,7 @@ where 'xxx' and 'xx' represent the atomic number.
 
 
 ### PAGEX output:  
-Various output parameters computed are written directly into MS-Excel with parameters under a particular sub-heading being written to an excel book in that name; (For instance, mass attenuation coefficients are written in excel book named "Photon mass attenuation and interaction cross section parameters”). Same parameters computed for different materials are written into different excel sheets of same book under that particular sub-heading. Excel sheets are named by default either with their chemical formula or constituent elements and corresponding weight fraction. Data is never overwritten in a sheet. If an excel file is deleted or moved a new blank excel book is created by default. An input log ('InputLog.txt'.) is maintained that logs all input made to the program with a time-stamp.
+Various output parameters computed are written directly into a .csv file with parameters under a particular sub-heading being written to a .csv file in that name followed by compound constituents; (for instance, mass attenuation coefficients are written in the file named "Photon mass attenuation and interaction cross section parameters”). An input log ('InputLog.log') is maintained that logs all input made to the program with a time-stamp.
 
 ### Disclaimer:  
 The developers of PAGEX have put in their sincere efforts to deliver a program that computes accurate data and relies on other standard databases. However, the developers make no warranties to that effect, and the developers or affiliates shall not be liable for any damage that may result from errors or omissions in the calculations or database used. 
