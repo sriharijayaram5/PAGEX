@@ -196,7 +196,7 @@ class Compound:
         '''Returns Photon Zeq or G-P fitting parameters and buildup factors
         @params 
         mfp: list of floats | for gp = True
-        gp: bool - Default = True, for G-P fitting parameters and buildup factors
+        gp: bool - Default = False, for G-P fitting parameters and buildup factors
         @return data: dict - dict['params'] for parameters
         '''
         R_element_list = loadtxt("element_R", usecols=(
