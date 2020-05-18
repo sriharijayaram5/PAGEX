@@ -752,9 +752,9 @@ class Compound:
                 'Relative\KERMA',
                 'Z_{PEAeff}',
                 'N_{eff}\ (electrons/g)']:
-                plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
+                plt.semilogx(x, para['value'], 'k-x', markersize=5, label=name)
             else:
-                plt.loglog(x, para['value'], '-x', markersize=5, label=name)
+                plt.loglog(x, para['value'], 'k-x', markersize=5, label=name)
             plt.legend(loc='upper right')
             plt.show()
             plt.close()
