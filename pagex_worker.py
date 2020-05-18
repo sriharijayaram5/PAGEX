@@ -124,7 +124,8 @@ class Compound:
             func = np.vectorize(lambda i: element(int(i)).mass / n)
             keys = self.dict_comp.keys()
             f = func([*keys])
-            params = [*(self.myu_comp[0:-3] * f),
+            params = [self.myu_comp[0],
+                      *(self.myu_comp[1:-3] * f),
                       self.myu_comp[-1] * f,
                       self.myu_comp[-3] * f,
                       *self.myu_comp[1:-3],
@@ -716,7 +717,7 @@ class Compound:
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])
         if X[0][0] > 1:
-            X[0] = X[0] / 10e6
+            X[0] = X[0] / 1e6
         np.savetxt(fname, X.T, header=', '.join(
             data['header']), delimiter=', ', fmt='%s', encoding="U8")
         print('Data saved at: ',os.getcwd()+fname)
@@ -737,7 +738,7 @@ class Compound:
                 axis='both', direction='in', which='both', top=True, right=True
             )
             if x[0] > 1:
-                x = x / 10e6
+                x = x / 1e6
             name = Substance.from_formula(self.formula_for_text).unicode_name
             if self.frac_flag:
                 sub = name + '('
@@ -750,7 +751,7 @@ class Compound:
                 'Z_{eq}',
                 'Relative\KERMA',
                 'Z_{PEAeff}',
-                    'N_{eff}\ (electrons/g)']:
+                'N_{eff}\ (electrons/g)']:
                 plt.semilogx(x, para['value'], '-x', markersize=5, label=name)
             else:
                 plt.loglog(x, para['value'], '-x', markersize=5, label=name)
@@ -767,7 +768,7 @@ class Compound:
         data = self.data
         x = np.asarray(data['params'])
         if x[0][0] > 1:
-            x[0] = x[0] / 10e6
+            x[0] = x[0] / 1e6
         energy = np.sort(np.append(x[0], custom_energies), axis=None)
         new = np.full((len(x), len(energy)), np.nan)
         new[0] = energy
