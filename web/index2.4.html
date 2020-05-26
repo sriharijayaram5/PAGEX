@@ -14,15 +14,14 @@
     
     <script>
 
-        eel.expose(html_plot)
-        function html_plot(a, b){
+        eel.expose(html_plot);
+        function html_plot(){
             Plotly.newPlot('chart1', [{
-                        x: a,
-                        y: b,
+                        x: [1, 2, 3, 4],
+                        y: [-1, -2, -3, -4],
                         type: 'scatter'
                         }]);
-            console.log(a);
-            console.log(b)
+            console.log('here');
         }
         function check() {
             var form = document.getElementById("form_1");
@@ -370,13 +369,13 @@
             document.getElementById("density").setAttribute("disabled", "True");
             document.getElementById("mfp").setAttribute("disabled", "True");
         }
-        eel.expose(excel_alert)
+        eel.expose(excel_alert);
         function excel_alert(alert_str="Excel sheet already open. Please close!"){
-            alert(alert_str)
+            alert(alert_str);
         }
-        eel.expose(excel_confirm)
+        eel.expose(excel_confirm);
         function excel_confirm(alert_str="Excel sheet already open. Please close!"){
-            return confirm(alert_str)
+            return confirm(alert_str);
         }
     </script>
 </head>
