@@ -8,12 +8,21 @@
     <title>PAGEX - October 2019</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="skeleton2.4.css">
+    <script type="text/javascript" src='plotly.min.js'></script>   
     <script type="text/javascript" src="/eel.js"></script>
     <link rel="shortcut icon" href="/FILE.ico">
     
     <script>
-
-        function check() {
+        eel.expose(html_plot)
+        function html_plot(){
+            Plotly.newPlot('chart1', [{
+                        x: [1, 2, 3, 4],
+                        y: [-1, -2, -3, -4],
+                        type: 'scatter'
+                        }]);
+            console.log('here');
+        }
+        function check() {             
             // Collecting values "^[0-9]?[0-9\.]?[0-9]+$|^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aehikr]$|^C[adeflos]$|^D[bsy]$|^Es$|^F[elmr]$|^G[ade]$|^H[efgos]$|^Kr$|^L[aiv]$|^M[cdgnot]$|^N[abdehiop]$|^O[gs]$|^P[abdmot]$|^R[abe-hnu]$|^S[bcegim]$|^T[abcehilms]$|^Xe$|^Yb"
             pattern100 = "^[0-9]?[0-9\.]?[0-9]+$|^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aeikr]$|^C[adeflos]$|^D[y]$|^Es$|^F[er]$|^G[ade]$|^H[efgo]$|^Kr$|^L[ai]$|^M[gno]$|^N[abdeip]$|^O[s]$|^P[abdmot]$|^R[abe-hnu]$|^S[bceim]$|^T[abcehilm]$|^Xe$|^Yb"
             pattern100_only_ele = "^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aehikr]$|^C[adeflos]$|^D[bsy]$|^Es$|^F[elmr]$|^G[ade]$|^H[efgos]$|^Kr$|^L[aiv]$|^M[cdgnot]$|^N[abdehiop]$|^O[gs]$|^P[abdmot]$|^R[abe-hnu]$|^S[bcegim]$|^T[abcehilms]$|^Xe$|^Yb"
@@ -472,8 +481,12 @@
             </div>
         </div>
         </div> 
+        <div>
+            <div id='chart1'>Here</div>
+        </div>
     </main>
     </form>
+    
 </body>
 
 </html>

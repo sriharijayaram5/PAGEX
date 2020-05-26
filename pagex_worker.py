@@ -758,6 +758,7 @@ class Compound:
             plt.legend(loc='upper right')
             plt.show()
             plt.close()
+            eel.html_plot()
 
 
     def interpolate_e(self, custom_energies):
@@ -873,10 +874,10 @@ def run_gui():
     '''Starts the program with a web brower based GUI for easy input and a help page.
     '''
     eel.init('web')
-    try:
-        eel.start('landing2.4.html', size=(1024, 550))
-    except (SystemExit, MemoryError, KeyboardInterrupt):
-        print('GUI now closed.')
+    # try:
+    eel.start('landing2.4.html', size=(1024, 550))
+    # except (SystemExit, MemoryError, KeyboardInterrupt):
+    #     print('GUI now closed.')
 
 if __name__ == '__main__':
     run_gui()
