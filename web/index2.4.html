@@ -13,6 +13,7 @@
     <link rel="shortcut icon" href="/FILE.ico">
     
     <script>
+        
         eel.expose(html_plot)
         function html_plot(){
             Plotly.newPlot('chart1', [{
@@ -23,6 +24,9 @@
             console.log('here');
         }
         function check() {             
+            var form = document.getElementById("form_1");
+            function handleForm(event) { event.preventDefault(); } 
+            form.addEventListener('submit', handleForm);
             // Collecting values "^[0-9]?[0-9\.]?[0-9]+$|^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aehikr]$|^C[adeflos]$|^D[bsy]$|^Es$|^F[elmr]$|^G[ade]$|^H[efgos]$|^Kr$|^L[aiv]$|^M[cdgnot]$|^N[abdehiop]$|^O[gs]$|^P[abdmot]$|^R[abe-hnu]$|^S[bcegim]$|^T[abcehilms]$|^Xe$|^Yb"
             pattern100 = "^[0-9]?[0-9\.]?[0-9]+$|^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aeikr]$|^C[adeflos]$|^D[y]$|^Es$|^F[er]$|^G[ade]$|^H[efgo]$|^Kr$|^L[ai]$|^M[gno]$|^N[abdeip]$|^O[s]$|^P[abdmot]$|^R[abe-hnu]$|^S[bceim]$|^T[abcehilm]$|^Xe$|^Yb"
             pattern100_only_ele = "^[BCFHIKNOPSUVWY]$|^[ISZ][nr]$|^[ACELP][ru]$|^A[cglmst]$|^B[aehikr]$|^C[adeflos]$|^D[bsy]$|^Es$|^F[elmr]$|^G[ade]$|^H[efgos]$|^Kr$|^L[aiv]$|^M[cdgnot]$|^N[abdehiop]$|^O[gs]$|^P[abdmot]$|^R[abe-hnu]$|^S[bcegim]$|^T[abcehilms]$|^Xe$|^Yb"
@@ -259,7 +263,7 @@
                 document.getElementById("cover-spin").style.display = "block";
                 window.status = 'Processing...'
                 eel.main(comp_0, do_what, output_choice, frac_flag, comp_1, comp_2, energy_flag, mfp, density, rel_mat, custom_energies);
-                // document.getElementById("cover-spin").style.display = "none";
+                document.getElementById("cover-spin").style.display = "none";
                 
                 return false
             }
@@ -475,7 +479,7 @@
                     <input type="checkbox" name="cb2" id="cb2">Plot graph
                 </div>
                 <input type="checkbox" name="cb1" id="cb1" checked = true >Export data to CSV file <br>
-                <input type="submit" class="submit" value="Submit" onclick="check()">
+                <input type="submit" value="Submit" onclick="check()">
                 <input type="button" class="submit" value="Back" onclick="window.location.href = 'landing2.4.html';">
                 </div>
             </div>
