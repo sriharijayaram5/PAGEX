@@ -756,8 +756,9 @@ class Compound:
             else:
                 plt.loglog(x, para['value'], 'k-x', markersize=5, label=name)
             plt.legend(loc='upper right')
-            plt.show()
+            # plt.show()
             plt.close()
+            eel.html_plot(list(x), list(para['value']))
 
 
     def interpolate_e(self, custom_energies):
