@@ -760,7 +760,7 @@ class Compound:
             plt.legend(loc='upper right')
             # plt.show()
             plt.close()
-            eel.html_plot(list(x), list(para['value']), name, para['para_name'], para['para_name'], '$E\ (MeV)$', log_flag)
+            eel.html_plot(list(x), list(para['value']), name, para['para_name'], '$E\ (MeV)$', para['para_name'], log_flag)
 
 
     def interpolate_e(self, custom_energies):
@@ -848,7 +848,7 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     elif param == params[3]:
         comp.zeq_by_R()
     elif param == params[4]:
-        comp.zeq_by_R(mfp=[float(x) for x in mfp], gp=True)
+        comp.zeq_by_R(mfp=[float(x) for x in mfp.split()], gp=True)
     elif param == params[5]:
         comp.zeff_by_Ratio()
     elif param == params[6]:

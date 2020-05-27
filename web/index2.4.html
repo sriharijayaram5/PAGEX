@@ -8,7 +8,11 @@
     <title>PAGEX - October 2019</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="skeleton2.4.css">
-    <script type="text/javascript" src='plotly.min.js'></script>   
+    <script src="mathjax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+    <script>
+        window.PlotlyConfig = {MathJaxConfig: 'local'}
+    </script>
+    <script src="plotly.min.js"></script>  
     <script type="text/javascript" src="/eel.js"></script>
     <link rel="shortcut icon" href="/FILE.ico">
     
@@ -21,22 +25,22 @@
                         name: pname,
                         marker: {
                         color: 'rgb(82, 82, 82)',
-                        size: 12
+                        size: 5
                                 },
                         line: {
                         color: 'rgb(82, 82, 82)',
                         width: 1
                         }};
-            var layout = {title: title,
+            var layout = {title: pname,
                             xaxis: {
                                 type: 'log',
                                 autorange: true,
-                                title: xaxis
+                                title: '$'+ xaxis + '$'
                                 },
                             yaxis: {
                                 type: log_flag,
                                 autorange: true,
-                                title: yaxis
+                                title: '$' + yaxis + '$'
                                 }};
             Plotly.purge('chart1')
             Plotly.plot('chart1', [data], layout);
