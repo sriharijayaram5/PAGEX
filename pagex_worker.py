@@ -874,7 +874,7 @@ def run_gui():
     '''
     eel.init('web')
     try:
-        eel.start('landing2.4.html', size=(1024, 550), host='pagex', port=1, mode='edge')
+        eel.start('landing2.4.html', size=(1024, 550), mode='chrome')
     except (SystemExit, MemoryError, KeyboardInterrupt):
         print('GUI now closed.')
 
