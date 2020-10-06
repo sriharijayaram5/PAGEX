@@ -722,12 +722,13 @@ class Compound:
             data['header']), delimiter=', ', fmt='%s', encoding="U8")
         print('Data saved at: ',os.getcwd()+fname)
 
-    def plot_parameter(self):
+    def plot_parameter(self, html=False):
         '''Plot the relevant parameters of previously run function.
         '''
         data = self.data
         x = data['old_energy']
         plot_params = data['plot_params']
+        html_data = []
         for para in plot_params:
             plt.ylabel('$%s$' % para['para_name'], fontname='Calibri')
             plt.xlabel('$E\ (MeV)$', fontname='Calibri')
@@ -753,11 +754,17 @@ class Compound:
                 'Z_{PEAeff}',
                 'N_{eff}\ (electrons/g)']:
                 plt.semilogx(x, para['value'], 'k-x', markersize=5, label=name)
+                log_flag = 'linear'
             else:
                 plt.loglog(x, para['value'], 'k-x', markersize=5, label=name)
+                log_flag = 'log'
             plt.legend(loc='upper right')
-            plt.show()
+            if not html:
+                plt.show()
             plt.close()
+            html_data.append([list(x), list(para['value']), name, para['para_name'], '$E\ (MeV)$', para['para_name'], log_flag])
+        if html:
+            eel.html_plot(html_data)
 
 
     def interpolate_e(self, custom_energies):
@@ -845,7 +852,7 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     elif param == params[3]:
         comp.zeq_by_R()
     elif param == params[4]:
-        comp.zeq_by_R(mfp=[float(x) for x in mfp], gp=True)
+        comp.zeq_by_R(mfp=[float(x) for x in mfp.split()], gp=True)
     elif param == params[5]:
         comp.zeff_by_Ratio()
     elif param == params[6]:
@@ -863,9 +870,9 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     if output == output_choices[0]:
         comp.write_to_csv()
     elif output == output_choices[1]:
-        comp.plot_parameter()
+        comp.plot_parameter(html=True)
     else:
-        comp.plot_parameter()
+        comp.plot_parameter(html=True)
         comp.write_to_csv()
     del(comp)
 
