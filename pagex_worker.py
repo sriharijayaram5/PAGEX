@@ -879,7 +879,7 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
 def run_gui():
     '''Starts the program with a web brower based GUI for easy input and a help page.
     '''
-    eel.init('web', js_result_timeout=99999)
+    eel.init('web')
     try:
         eel.start('landing2.4.html', size=(1024, 550), mode='chrome')
     except (SystemExit, MemoryError, KeyboardInterrupt):
