@@ -52,7 +52,7 @@ prompt-toolkit==3.0.5
 PuLP==2.1
 pycparser==2.20
 pyfiglet==0.8.post1
-Pygments==2.6.1
+Pygments==2.7.4
 pyneqsys==0.5.6
 pyodesys==0.13.0
 pyparsing==2.4.7
