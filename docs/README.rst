@@ -275,7 +275,7 @@ For charged particle interaction:
 
    </table>
 
-Data files used in PAGEX:
+Data files used in PAGEX
 =========================
 
 .. raw:: html
@@ -354,7 +354,7 @@ Data files used in PAGEX:
 
 where 'xxx' and 'xx' represent the atomic number.
 
-PAGEX output:
+PAGEX output
 =============
 
 Various output parameters computed are written directly into a .csv file
@@ -365,7 +365,7 @@ attenuation and interaction cross section parameters”). An input log
 ('InputLog.log') is maintained that logs all input made to the program
 with a time-stamp.
 
-Disclaimer:
+Disclaimer
 ===========
 
 The developers of PAGEX have put in their sincere efforts to deliver a
@@ -375,7 +375,7 @@ and the developers or affiliates shall not be liable for any damage that
 may result from errors or omissions in the calculations or database
 used.
 
-License:
+License
 ========
 
 Copyright 2019 Bubbly S G Permission is hereby granted, free of charge,
