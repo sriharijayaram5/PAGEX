@@ -3,17 +3,15 @@ import json
 import eel
 import time
 from pandas import read_csv
-import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from scipy.interpolate import interp1d
 from bs4 import BeautifulSoup
 import requests
 from mendeleev import element
-from numpy import loadtxt, log10, array
+from numpy import loadtxt
 import numpy as np
 import scipy
-from scipy import constants, optimize
 from scipy.interpolate import InterpolatedUnivariateSpline
 from chempy import Substance
 import matplotlib as mpl
@@ -22,24 +20,31 @@ n = scipy.constants.N_A
 
 
 class Compound:
-    def __init__(self, comp=None, constit=None, wfrac=None, fflag=False):
-        ''' Initialises necessary local vars
-        @params
-        comp_0: str - Compound with constituents and number of constituents sep by ' '. default = None
-            comp_1: str - Compound constituents sep by ' '. For known weight frac. like input. default = None
-            comp_2: str - Compound weight frac sep by ' '. Must give fflag = True if comp_1, comp_2 is used. default = None
-        fflag = bool - Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2
-        '''
+    """Compound class that handles all PAGEX calculations
+    
+    :param comp_0: Compound with constituents and number of constituents sep by ' ', defaults to None
+    :type comp_0: str, optional
+    :param comp_1: Compound constituents sep by ' '. For known weight frac. like input, defaults to None
+    :type comp_1: str, optional
+    :param comp_2: Compound weight frac sep by ' '. Must give fflag = True if comp_1, comp_2 is used, defaults to None
+    :type comp_2: str, optional
+    :param fflag: Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2, defaults to False
+    :type fflag: bool, optional
+    """
+    def __init__(self, comp_0=None, comp_1=None, comp_2=None, fflag=False):
+        """Initialisation of compound class with user data
+        """
         self.frac_flag = fflag
-        self.comp_0 = comp
-        self.comp_1 = constit
-        self.comp_2 = wfrac
+        self.comp_0 = comp_0
+        self.comp_1 = comp_1
+        self.comp_2 = comp_2
         self.weight_frac_list = []
         self._fetch_compound()
         self.calc_weight_fraction()
         self.data = None
 
     def calc_weight_fraction(self):
+        """Private function to caluclate weight fraction"""
         keys = self.dict_comp.keys()
         func = np.vectorize(lambda i: element(int(i)).mass * self.dict_comp[i])
         keys = func([*keys])
@@ -52,6 +57,7 @@ class Compound:
         return self.weight_fraction
 
     def _comp_input(self):
+        """Private function to handle input"""
         if self.frac_flag:
             za = self.comp_1
             weight_frac_list = self.comp_2.split()
@@ -84,6 +90,7 @@ class Compound:
         return self.ta_param
 
     def _d1(self):
+        """Private function to create commonly used denominator"""
         func = np.vectorize(lambda i: element(int(i)).mass)
         keys = self.dict_comp.keys()
         denom = self.weight_fraction / func([*keys])
@@ -91,9 +98,11 @@ class Compound:
         return denom1
 
     def myu(self):
-        '''Returns Photon mass attenuation and interaction cross section parameters
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Photon mass attenuation and interaction cross section parameters
+
+        :return: dict['params'] for parameters
+        :rtype: v
+        """
         denom1 = self._d1()
         self.myu_comp = np.ndarray((7, 80))
         params = self.total_attenuation()
@@ -151,9 +160,11 @@ class Compound:
         return self.data
 
     def zeff_by_log(self):
-        '''Returns Photon Zeff - Interpolation method
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Photon Zeff - Interpolation method
+
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         photon_abs_element_list = loadtxt(
             "element_photo_abs", usecols=(0), unpack=True).reshape((99, 80))
         self.myu()
@@ -194,12 +205,15 @@ class Compound:
         return self.data
 
     def zeq_by_R(self, mfp=None, gp=False):
-        '''Returns Photon Zeq or G-P fitting parameters and buildup factors
-        @params 
-        mfp: list of floats | for gp = True
-        gp: bool - Default = False, for G-P fitting parameters and buildup factors
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Photon Zeq or G-P fitting parameters and buildup factors
+
+        :param mfp: list of floats for gp = True, defaults to None
+        :type mfp: list, optional
+        :param gp: for G-P fitting parameters and buildup factors, defaults to False
+        :type gp: bool, optional
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         R_element_list = loadtxt("element_R", usecols=(
             0), unpack=True).reshape((99, 80))
 
@@ -294,6 +308,8 @@ class Compound:
         return self.data
 
     def _get_gp(self, db, param):
+        """
+        Private function to fetch ANSI data"""
         all_y = []
         all_z = []
         for j in range(4, 83):
@@ -318,9 +334,11 @@ class Compound:
         return inter_y
 
     def zeff_by_Ratio(self):
-        '''Returns Photon Zeff - Direct method
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Photon Zeff - Direct method
+
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         params = self.total_attenuation()
         self.myu()
         func = np.vectorize(lambda i: element(int(i)).mass)
@@ -349,6 +367,8 @@ class Compound:
         return self.data
 
     def _stopping_power_compound_post(self, density):
+        """
+        Private function to fetch Stopping Power data"""
         formula = []
         for i, e in enumerate(self.dict_comp.keys()):
             formula.extend([element(e).symbol, str(
@@ -414,11 +434,13 @@ class Compound:
             return a, b
 
     def zeff_electron_interaction(self, density):
-        '''Returns Electron interaction parameters
-        @params
-        density: float - density of material
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Electron interaction parameters
+
+        :param density: density of material
+        :type density: float
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         x, mass_stopping_power = self._stopping_power_compound_post(str(density))
         electron_int_cross = mass_stopping_power / self._d1()
         electron_msp = mass_stopping_power
@@ -476,9 +498,11 @@ class Compound:
         return self.data
 
     def zeff_proton_interaction(self):
-        '''Returns Proton interaction parameters
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Proton interaction parameters
+
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         good_z = np.arange(1, 93)
         all_y = []
         all_z = []
@@ -553,9 +577,11 @@ class Compound:
         return self.data
 
     def zeff_alpha_interaction(self):
-        '''Returns Alpha particle interaction parameters
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Alpha particle interaction parameters
+
+        :return: Returns Alpha particle interaction parameters
+        :rtype: dict
+        """
         good_z = np.arange(1, 93)
         all_y = []
         all_z = []
@@ -630,12 +656,15 @@ class Compound:
         return self.data
 
     def kerma_1(self, relative_to_choice='AIR', kerma=False):
-        '''Returns Relative KERMA or Photon mass-energy absorption coefficients
-        @params
-        relative_to_choice: str - Default = 'AIR' | for more see readme or files
-        kerma: bool - Default = False | For kerma calc.
-        @return data: dict - dict['params'] for parameters
-        '''
+        """Returns Relative KERMA or Photon mass-energy absorption coefficients
+
+        :param relative_to_choice: for more see readme or files, defaults to 'AIR'
+        :type relative_to_choice: str, optional
+        :param kerma: For kerma calc., defaults to False
+        :type kerma: bool, optional
+        :return: dict['params'] for parameters
+        :rtype: dict
+        """
         ele_x = []
         for i in range(1, 93):
             z = element(i).atomic_number
@@ -711,8 +740,8 @@ class Compound:
         return self.data
 
     def write_to_csv(self):
-        '''Write data of previously run function to .csv file in current directory.
-        '''
+        """Write data of previously run function to .csv file in current directory.
+        """
         data = self.data
         fname = data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])
@@ -723,8 +752,8 @@ class Compound:
         print('Data saved at: ',os.getcwd()+fname)
 
     def plot_parameter(self, html=False):
-        '''Plot the relevant parameters of previously run function.
-        '''
+        """Plot the relevant parameters of previously run function.
+        """
         data = self.data
         x = data['old_energy']
         plot_params = data['plot_params']
@@ -768,10 +797,13 @@ class Compound:
 
 
     def interpolate_e(self, custom_energies):
-        '''Interpolates parameter values at defined custom energies for the previously run function.
-        @params: custom_energies - list | Energies to interpolate in Mev, details in readme
-        @return: data - dict | data with now interpolated values. Can also be written to csv with write_to_csv
-        '''
+        """Interpolates parameter values at defined custom energies for the previously run function.
+
+        :param custom_energies: Energies to interpolate in Mev, details in readme
+        :type custom_energies: list
+        :return: data with now interpolated values. Can also be written to csv with write_to_csv
+        :rtype: dict
+        """
         data = self.data
         x = np.asarray(data['params'])
         if x[0][0] > 1:
@@ -789,6 +821,7 @@ class Compound:
 
 
 def CreateFolder(directory):
+    """Create directory if not present"""
     try:
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -797,15 +830,17 @@ def CreateFolder(directory):
 
 
 def CreateLog(dat1, loc="InputLog.log"):
+    """
+    Create log file of all PAGEX processes"""
     with open(loc, "a") as text_file:
         text_file.write(json.dumps(dat1))
         text_file.write('\n')
 
-CreateFolder('Save_File')
-
 @eel.expose
 def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, density, rel_mat, custom_energies_list):
     comp = Compound(comp_0a, comp_1a, comp_2a, ff1)
+    """Main function exposed to the GUI
+    """
     input_log = {}
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -877,8 +912,8 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     del(comp)
 
 def run_gui():
-    '''Starts the program with a web brower based GUI for easy input and a help page.
-    '''
+    """Starts the program with a web brower based GUI for easy input and a help page.
+    """
     eel.init('web')
     try:
         eel.start('landing2.4.html', size=(1024, 550), mode='chrome')
@@ -886,4 +921,5 @@ def run_gui():
         print('GUI now closed.')
 
 if __name__ == '__main__':
+    CreateFolder('Save_File')
     run_gui()
