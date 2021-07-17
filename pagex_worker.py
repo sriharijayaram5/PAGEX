@@ -15,7 +15,6 @@ import scipy
 from scipy.interpolate import InterpolatedUnivariateSpline
 from chempy import Substance
 import matplotlib as mpl
-mpl.use('TKAgg', force=True)
 n = scipy.constants.N_A
 
 
