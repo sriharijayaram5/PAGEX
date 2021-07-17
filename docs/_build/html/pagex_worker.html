@@ -1,0 +1,424 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>PAGEX Worker module &mdash; PAGEX 2020 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="PAGEX" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PAGEX
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme1.html">README File</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">PAGEX API Description</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PAGEX Worker</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PAGEX</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">PAGEX</a> &raquo;</li>
+        
+      <li>PAGEX Worker module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pagex_worker.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pagex_worker">
+<span id="pagex-worker-module"></span><h1>PAGEX Worker module<a class="headerlink" href="#module-pagex_worker" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pagex_worker.Compound">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pagex_worker.</span></span><span class="sig-name descname"><span class="pre">Compound</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fflag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Compound class that handles all PAGEX calculations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>comp_0</strong> (<em>str</em><em>, </em><em>optional</em>) – Compound with constituents and number of constituents sep by ‘ ‘, defaults to None</p></li>
+<li><p><strong>comp_1</strong> (<em>str</em><em>, </em><em>optional</em>) – Compound constituents sep by ‘ ‘. For known weight frac. like input, defaults to None</p></li>
+<li><p><strong>comp_2</strong> (<em>str</em><em>, </em><em>optional</em>) – Compound weight frac sep by ‘ ‘. Must give fflag = True if comp_1, comp_2 is used, defaults to None</p></li>
+<li><p><strong>fflag</strong> (<em>bool</em><em>, </em><em>optional</em>) – Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2, defaults to False</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.calc_weight_fraction">
+<span class="sig-name descname"><span class="pre">calc_weight_fraction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.calc_weight_fraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.calc_weight_fraction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Private function to caluclate weight fraction</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.interpolate_e">
+<span class="sig-name descname"><span class="pre">interpolate_e</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_energies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.interpolate_e"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.interpolate_e" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interpolates parameter values at defined custom energies for the previously run function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>custom_energies</strong> (<em>list</em>) – Energies to interpolate in Mev, details in readme</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>data with now interpolated values. Can also be written to csv with write_to_csv</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.kerma_1">
+<span class="sig-name descname"><span class="pre">kerma_1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative_to_choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'AIR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kerma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.kerma_1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.kerma_1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Relative KERMA or Photon mass-energy absorption coefficients</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relative_to_choice</strong> (<em>str</em><em>, </em><em>optional</em>) – for more see readme or files, defaults to ‘AIR’</p></li>
+<li><p><strong>kerma</strong> (<em>bool</em><em>, </em><em>optional</em>) – For kerma calc., defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.myu">
+<span class="sig-name descname"><span class="pre">myu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.myu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.myu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Photon mass attenuation and interaction cross section parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>v</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.plot_parameter">
+<span class="sig-name descname"><span class="pre">plot_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.plot_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.plot_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the relevant parameters of previously run function.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.total_attenuation">
+<span class="sig-name descname"><span class="pre">total_attenuation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.total_attenuation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.total_attenuation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates total attenuation coefficients from NIST database.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.write_to_csv">
+<span class="sig-name descname"><span class="pre">write_to_csv</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.write_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.write_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write data of previously run function to .csv file in current directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeff_alpha_interaction">
+<span class="sig-name descname"><span class="pre">zeff_alpha_interaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeff_alpha_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeff_alpha_interaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Alpha particle interaction parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns Alpha particle interaction parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeff_by_Ratio">
+<span class="sig-name descname"><span class="pre">zeff_by_Ratio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeff_by_Ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeff_by_Ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Photon Zeff - Direct method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeff_by_log">
+<span class="sig-name descname"><span class="pre">zeff_by_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeff_by_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeff_by_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Photon Zeff - Interpolation method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeff_electron_interaction">
+<span class="sig-name descname"><span class="pre">zeff_electron_interaction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeff_electron_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeff_electron_interaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Electron interaction parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>density</strong> (<em>float</em>) – density of material</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeff_proton_interaction">
+<span class="sig-name descname"><span class="pre">zeff_proton_interaction</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeff_proton_interaction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeff_proton_interaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Proton interaction parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pagex_worker.Compound.zeq_by_R">
+<span class="sig-name descname"><span class="pre">zeq_by_R</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mfp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#Compound.zeq_by_R"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.Compound.zeq_by_R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Photon Zeq or G-P fitting parameters and buildup factors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mfp</strong> (<em>list</em><em>, </em><em>optional</em>) – list of floats for gp = True, defaults to None</p></li>
+<li><p><strong>gp</strong> (<em>bool</em><em>, </em><em>optional</em>) – for G-P fitting parameters and buildup factors, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict[‘params’] for parameters</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pagex_worker.CreateFolder">
+<span class="sig-prename descclassname"><span class="pre">pagex_worker.</span></span><span class="sig-name descname"><span class="pre">CreateFolder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#CreateFolder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.CreateFolder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create directory if not present</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pagex_worker.CreateLog">
+<span class="sig-prename descclassname"><span class="pre">pagex_worker.</span></span><span class="sig-name descname"><span class="pre">CreateLog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'InputLog.log'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#CreateLog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.CreateLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create log file of all PAGEX processes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pagex_worker.main">
+<span class="sig-prename descclassname"><span class="pre">pagex_worker.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comp_0a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_what_now</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_1a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comp_2a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eflag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mfp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rel_mat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_energies_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pagex_worker.run_gui">
+<span class="sig-prename descclassname"><span class="pre">pagex_worker.</span></span><span class="sig-name descname"><span class="pre">run_gui</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pagex_worker.html#run_gui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pagex_worker.run_gui" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the program with a web brower based GUI for easy input and a help page.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="modules.html" class="btn btn-neutral float-left" title="PAGEX" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Srilakshmi Prabhu, Sreehari Jayaram, Bubbly S. G., S. B. Gudennavar.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
