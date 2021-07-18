@@ -1,3 +1,5 @@
+.. _api-desc:
+
 PAGEX Worker module
 ====================
 

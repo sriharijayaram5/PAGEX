@@ -1,72 +1,31 @@
-Proton, Alpha, Gamma, Electron and X-radiation interaction parameters
-=====================================================================
-=====================================================================
+**Proton, Alpha, Gamma, Electron and X-radiation interaction parameters**
 
-| **Original release** : October 2019
-| Srilakshmi Prabhu, Sreehari Jayaram, Bubbly S G\* and S B Gudennavar
-| Department of Physics and Electronics, CHRIST (Deemed to be
-  University), Bengaluru-560029, Karnataka, India
-| \*Correspondence to: bubbly.sg@christuniversity.in;
-  bubblysg@rediffmail.com
+Description
+===========
 
 A complete package for computation of various radiation interaction
 parameters useful in diverse fields. The radiations considered include
 X-/gamma rays, electrons, protons and alpha particles.
 
-Installation
-============
+Authors
+-------
 
--  Clone the github repository
-   https://github.com/sriharijayaram5/PAGEX.git on your local machine.
+| **Original release** : October 2019
+| Srilakshmi Prabhu :sup:`1` *srilakshmi.prabhu@res.christuniversity.in*
+| Sreehari Jayaram :sup:`2` *s.jayaram@pi3.uni-stuttgart.de*
+| Bubbly S G :sup:`1` *bubbly.sg@christuniversity.in*
+| S B Gudennavar :sup:`1` *shivappa.b.gudennavar@christuniversity.in*
 
--  Install python3.x from https://www.python.org/downloads/.
+| :sup:`1` Department of Physics and Electronics, CHRIST (Deemed to be
+  University), Bengaluru-560029, Karnataka, India
+| :sup:`2` 3. Physikalisches Institut, Universität Stuttgart, Stuttgart-70569, Stuttgart, Germany
 
--  Run the following commands in your command prompt in the directory
-   you wish to install a virtual python environment.
 
--  ::
+Various parameters and their relevant atomic number and energy range 
+computed by PAGEX are as follows:
 
-        pip3 install virtualenv
-        virtualenv my_env_name
-        my_env_name/Scripts/activate.bat
-
--  Navigate to the PAGEX directory.
-
--  ::
-
-      pip3 install -r requirements.txt
-
--  | You can now run the PAGEX program GUI by the following command:
-
--  ::
-
-      python3 pagex_worker.py
-
--  The program can also be run from terminal by importing the
-   ``Compound`` class:
-
--  ::
-
-         from pagex_worker import Compound
-         my_comp = Compound(comp='C 6 H 12 O 6')
-         my_comp.myu()
-         my_comp.plot_parameter()
-         my_comp.write_to_csv()
-         #To run gui
-         import pagex_worker
-         pagex_worker.run_gui()
-
--  An iPython REPL is recommended for terminal use. See docstring for
-   help and arguments.
-
--  ::
-
-         help(my_comp.myu)
-
-   Various parameters and their relevant atomic number and energy range
-   computed by PAGEX are as follows:
-
-   .. rubric:: For photon interaction:
+Photon interaction parameters
+-----------------------------
 
 .. raw:: html
 
@@ -222,8 +181,8 @@ a - Note: 1 barn = 10-24cm2 b - Relative to air and 11 human tissues
 (adipose tissue, blood, bone, brain, breast, eye, muscles, ovary,
 testis, skin and soft tissue) as reported in ICRU Report 44 (1989)
 
-For charged particle interaction:
-=================================
+Charged particle interaction parameters
+---------------------------------------
 
 .. raw:: html
 
@@ -274,9 +233,9 @@ For charged particle interaction:
    </tbody>
 
    </table>
-
+|
 Data files used in PAGEX
-=========================
+-------------------------
 
 .. raw:: html
 
@@ -354,17 +313,80 @@ Data files used in PAGEX
 
 where 'xxx' and 'xx' represent the atomic number.
 
+PAGEX I/O
+---------
+
+User Input
+..........
+
+The user can input the composition of material, either in terms of molecular formula or as fractional (by mass) elemental composition, 
+which is then stored in temporary memory. All the data regarding the basic properties of individual elements is extracted. 
+The formula input is case sensitive. The composition data entered will be used to load the corresponding standard data files stored in the program directory. 
+The user can choose either only standard energy range or the standard energy range with user defined energies for computation of desired parameters. 
+However, the chosen energy should be within the available range.
+An input log ('InputLog.log') is maintained that logs all input made to the program
+with a time-stamp when PAGEX GUI is used.
+
 PAGEX output
-=============
+............
 
-Various output parameters computed are written directly into a .csv file
-with parameters under a particular sub-heading being written to a .csv
-file in that name followed by compound constituents; (for instance, mass
+An attractive feature of PAGEX is that it allows the user to save the output data in an easily extractable CSV file or plot the desired parameter as 
+functions of energy. The data in CSV file contains all the quantities related to the calculation in addition to the specific output parameter. 
+For instance, mass
 attenuation coefficients are written in the file named "Photon mass
-attenuation and interaction cross section parameters”). An input log
-('InputLog.log') is maintained that logs all input made to the program
-with a time-stamp.
+attenuation and interaction cross section parameters” in the folder "Save_Folder" which is automatically created if not present.
+Graphs are also plotted using the GUI as well as Matplotlib (Hunter, 2007) when using the API from comman line. These graphs can be easily saved in various publication ready formats.
 
+Installation
+============
+
+-  Clone the github repository
+   https://github.com/sriharijayaram5/PAGEX.git on your local machine.
+
+-  Install python3.x from https://www.python.org/downloads/.
+
+-  Run the following commands in your command prompt in the directory
+   you wish to install a virtual python environment.
+
+-  ::
+
+        pip3 install virtualenv
+        virtualenv my_env_name
+        my_env_name/Scripts/activate.bat
+
+-  Navigate to the PAGEX directory.
+
+-  ::
+
+      pip3 install -r requirements.txt
+
+-  | You can now run the PAGEX program GUI by the following command:
+
+-  ::
+
+      python3 pagex_worker.py
+
+-  The program can also be run from terminal by importing the
+   ``Compound`` class:
+
+-  ::
+
+         from pagex_worker import Compound
+         my_comp = Compound(comp='C 6 H 12 O 6')
+         my_comp.myu()
+         my_comp.plot_parameter()
+         my_comp.write_to_csv()
+         #To run gui
+         import pagex_worker
+         pagex_worker.run_gui()
+
+-  An iPython REPL is recommended for terminal use. See docstring for
+   help and arguments. Users are encouraged to read :ref:`api-desc` for more details.
+
+-  ::
+
+         help(my_comp.myu)
+         
 Disclaimer
 ===========
 

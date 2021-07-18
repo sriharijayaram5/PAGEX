@@ -3,14 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PAGEX's documentation!
-=================================
-
+Welcome
+=======
+PAGEX user manual
+======================
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Contents
 
-   README File <readme1>
+   README <readme1>
    PAGEX API Description <modules>
 
 Indices and tables

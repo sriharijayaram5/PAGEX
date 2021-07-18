@@ -111,7 +111,7 @@ class Compound:
             self.myu_comp, [self.myu_comp[-1] / denom1], axis=0)
         self.myu_comp = np.append(
             self.myu_comp, [(self.myu_comp[-2] - self.myu_comp[1]) / denom1], axis=0)
-        dest_filename = 'Save_File/Photon mass attenuation and interaction cross section parameters'
+        dest_filename = 'Save_Folder/Photon mass attenuation and interaction cross section parameters'
         if len(self.dict_comp) == 1:
             header = [
                 'Energy (MeV)',
@@ -190,7 +190,7 @@ class Compound:
         for i in range(80):
             zeff[i] = func(params1[i], self.photon_comp[i])
 
-        dest_filename = 'Save_File/Photon Zeff - Interpolation method'
+        dest_filename = 'Save_Folder/Photon Zeff - Interpolation method'
         self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'Zeff',
@@ -237,7 +237,7 @@ class Compound:
         for i in range(80):
             self.zeq[i] = func(params1[i], self.R_comp[i])
 
-        dest_filename = 'Save_File/Photon Zeq'
+        dest_filename = 'Save_Folder/Photon Zeq'
         self.data = {
             'name': dest_filename, 'header': [
                 'Energy (MeV)', 'Zeq', 'R'], 'params': [
@@ -281,7 +281,7 @@ class Compound:
                                           1 + (((b1 - 1) * (k1**x - 1)) / (k1 - 1)))
                 self.BE[l] = f(mfps)
 
-            dest_filename = 'Save_File/G-P fitting parameters and buildup factors'
+            dest_filename = 'Save_Folder/G-P fitting parameters and buildup factors'
             header = ['Energy (MeV)', 'b', 'c', 'a', 'Xk',
                       'd'] + [f'EABF {i}mfp' for i in mfp]
             header += ['b1', 'c1', 'a1', 'Xk1', 'd1'] + \
@@ -348,7 +348,7 @@ class Compound:
             (params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-1] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
 
-        dest_filename = 'Save_File/Photon Zeff - Direct method'
+        dest_filename = 'Save_Folder/Photon Zeff - Direct method'
         self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'σₐ Average Cross Section per Atom (cm²/atom)',
@@ -470,7 +470,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_ele[i] = func(params[i], electron_int_cross[i])
 
-        dest_filename = 'Save_File/Electron interaction parameters'
+        dest_filename = 'Save_Folder/Electron interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -549,7 +549,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_proton[i] = func(params[i], proton_int_cross[i])
 
-        dest_filename = 'Save_File/Proton interaction parameters'
+        dest_filename = 'Save_Folder/Proton interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -628,7 +628,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_alpha[i] = func(params[i], alpha_int_cross[i])
 
-        dest_filename = 'Save_File/Alpha particle interaction parameters'
+        dest_filename = 'Save_Folder/Alpha particle interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -706,7 +706,7 @@ class Compound:
             self.zeff_x[i] = func(params[i], sigmaa[i])
 
         if kerma:
-            dest_filename = 'Save_File/Relative KERMA'
+            dest_filename = 'Save_Folder/Relative KERMA'
             self.data = {'name': dest_filename, 'header':
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'],
                     'params': [x, self.kerma]}
@@ -714,7 +714,7 @@ class Compound:
             self.data['plot_params'] = [
                 {'para_name': f'{relative_to_choice}\ KERMA', 'value': self.kerma}]
         else:
-            dest_filename = 'Save_File/Photon mass-energy absorption coefficients'
+            dest_filename = 'Save_Folder/Photon mass-energy absorption coefficients'
             self.data = {
                 'name': dest_filename,
                 'header': [
@@ -919,6 +919,6 @@ def run_gui():
     except (SystemExit, MemoryError, KeyboardInterrupt):
         print('GUI now closed.')
 
+CreateFolder('Save_Folder')
 if __name__ == '__main__':
-    CreateFolder('Save_File')
     run_gui()
