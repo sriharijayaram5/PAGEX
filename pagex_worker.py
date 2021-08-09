@@ -25,7 +25,7 @@ class Compound:
     :type comp_0: str, optional
     :param comp_1: Compound constituents sep by ' '. For known weight frac. like input, defaults to None
     :type comp_1: str, optional
-    :param comp_2: Compound weight frac sep by ' '. Must give fflag = True if comp_1, comp_2 is used, defaults to None
+    :param comp_2: Compound weight frac sep by ' '. Elemental weight fractions not summing to 1 are normalized. Must give fflag = True if comp_1, comp_2 is used, defaults to None
     :type comp_2: str, optional
     :param fflag: Weight frac. flag. Use comp_0 and calculated weight frac if True, else comp_1, comp_2, defaults to False
     :type fflag: bool, optional
