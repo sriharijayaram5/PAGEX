@@ -446,7 +446,10 @@
                         <label for="comp_1">Constituent elements:  </label>
                         <input type="text" id="comp_1" placeholder="C H O" disabled=True pattern = "^^[a-zA-Z\s]+$" required onchange="single_element_disabler()"><br>
                         <label for="comp_2">Weight fraction of constituents:  </label>
+                        <div class="tooltip">
                         <input type="text" id="comp_2" placeholder="0.4 0.06 0.54" disabled=True pattern = "^^[0-9\s\.]+$" required><br>
+                        <span class="tooltiptext">Elemental weight fractions not summing to 1.0 are normalized</span>
+                          </div>
                     </div>
                 </div>
                 </div>
