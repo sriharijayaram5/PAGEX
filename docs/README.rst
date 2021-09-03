@@ -352,7 +352,7 @@ Installation
 
         pip3 install virtualenv
         virtualenv my_env_name
-        my_env_name/Scripts/activate.bat
+        my_env_name\Scripts\activate.bat
 
 -  Navigate to the PAGEX directory.
 
