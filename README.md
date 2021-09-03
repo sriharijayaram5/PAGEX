@@ -1,7 +1,7 @@
 <meta name="google-site-verification" content="JSFGxluGDoxSu4rp3SGsLAi8MLoWOVcMTL1JhE2bYF4" />
 
 ## PAGEX Proton, Alpha, Gamma, Electron and X-radiation interaction parameters
-
+**Publication** : Prabhu, S., Jayaram, S., Bubbly, S. G. & Gudennavar, S. B. A simple software for swift computation of photon and charged particle interaction parameters: PAGEX. Applied Radiation and Isotopes 176, 109903 (2021) https://doi.org/10.1016/j.apradiso.2021.109903
 **Original release** : October 2019  
 Srilakshmi Prabhu, Sreehari Jayaram, Bubbly S G* and S B Gudennavar  
 Department of Physics and Electronics, CHRIST (Deemed to be University), Bengaluru-560029, Karnataka, India  
