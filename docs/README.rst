@@ -9,7 +9,7 @@ X-/gamma rays, electrons, protons and alpha particles.
 
 Authors
 -------
-| **publication** : Prabhu, S., Jayaram, S., Bubbly, S. G. & Gudennavar, S. B. A simple software for swift computation of photon and charged particle interaction parameters: PAGEX. Applied Radiation and Isotopes 176, 109903 (2021) https://doi.org/10.1016/j.apradiso.2021.109903
+| **publication** : Prabhu, S., Jayaram, S., Bubbly, S. G. & Gudennavar, S. B. A simple software for swift computation of photon and charged particle interaction parameters: PAGEX. *Applied Radiation and Isotopes* **176**, 109903 (2021) https://doi.org/10.1016/j.apradiso.2021.109903
 | **Original release** : October 2019
 | Srilakshmi Prabhu :sup:`1` *srilakshmi.prabhu@res.christuniversity.in*
 | Sreehari Jayaram :sup:`2` *s.jayaram@pi3.uni-stuttgart.de*
