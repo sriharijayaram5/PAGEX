@@ -15,15 +15,15 @@ Documentation at: https://pagex.readthedocs.io/
 - Install python3.x from https://www.python.org/downloads/.
 - Run the following commands in your command prompt in the directory you wish to install a virtual python environment.
 - 
-        pip3 install virtualenv
+        pip install virtualenv
         virtualenv my_env_name
         my_env_name\Scripts\activate.bat
 -   Navigate to the PAGEX directory.
 -   
-        pip3 install -r requirements.txt
+        pip install -r requirements.txt
 -   You can now run the PAGEX program GUI by the following command:  
 -   
-        python3 pagex_worker.py
+        python pagex_worker.py
 - The program can also be run from terminal by importing the `Compound` class:
 -
         from pagex_worker import Compound
@@ -37,6 +37,10 @@ Documentation at: https://pagex.readthedocs.io/
 - An iPython REPL is recommended for terminal use. See docstring for help and arguments.
 -
         help(my_comp.myu)
+
+Please contact me at <s.jayaram@pi3.uni-stuttgart.de> if any issues persist after extensive debugging.
+
+
 Various parameters and their relevant atomic number and energy range computed by PAGEX are as follows: 
 ### For photon interaction:
 

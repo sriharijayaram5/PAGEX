@@ -350,7 +350,7 @@ Installation
 
 -  ::
 
-        pip3 install virtualenv
+        pip install virtualenv
         virtualenv my_env_name
         my_env_name\Scripts\activate.bat
 
@@ -358,13 +358,13 @@ Installation
 
 -  ::
 
-      pip3 install -r requirements.txt
+      pip install -r requirements.txt
 
 -  | You can now run the PAGEX program GUI by the following command:
 
 -  ::
 
-      python3 pagex_worker.py
+      python pagex_worker.py
 
 -  The program can also be run from terminal by importing the
    ``Compound`` class:
