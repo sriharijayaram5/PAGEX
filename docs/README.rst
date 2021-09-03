@@ -339,7 +339,7 @@ Graphs are also plotted using the GUI as well as Matplotlib (Hunter, 2007) when 
 
 Installation
 ============
-
+-  An executable file is available in releases to easily run the GUI. Alternatively, to run from the command line follow the instructions below.
 -  Clone the github repository
    https://github.com/sriharijayaram5/PAGEX.git on your local machine.
 
