@@ -1,10 +1,21 @@
+import sys, os
+
+if getattr(sys, 'frozen', False):
+    # If the application is run as a bundle, the PyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app 
+    # path into variable _MEIPASS'.
+    root_path = sys._MEIPASS
+    appl_path = os.path.dirname(sys.executable)+'/'
+else:
+    root_path = os.path.dirname(os.path.abspath(__file__))
+    appl_path = ''
+os.chdir(root_path)
 from datetime import datetime
 import json
 import eel
 import time
 from pandas import read_csv
 import matplotlib.pyplot as plt
-import os
 from scipy.interpolate import interp1d
 from bs4 import BeautifulSoup
 import requests
@@ -111,7 +122,7 @@ class Compound:
             self.myu_comp, [self.myu_comp[-1] / denom1], axis=0)
         self.myu_comp = np.append(
             self.myu_comp, [(self.myu_comp[-2] - self.myu_comp[1]) / denom1], axis=0)
-        dest_filename = 'Save_Folder/Photon mass attenuation and interaction cross section parameters'
+        dest_filename = 'Output_Files/Photon mass attenuation and interaction cross section parameters'
         if len(self.dict_comp) == 1:
             header = [
                 'Energy (MeV)',
@@ -190,7 +201,7 @@ class Compound:
         for i in range(80):
             zeff[i] = func(params1[i], self.photon_comp[i])
 
-        dest_filename = 'Save_Folder/Photon Zeff - Interpolation method'
+        dest_filename = 'Output_Files/Photon Zeff - Interpolation method'
         self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'Zeff',
@@ -237,7 +248,7 @@ class Compound:
         for i in range(80):
             self.zeq[i] = func(params1[i], self.R_comp[i])
 
-        dest_filename = 'Save_Folder/Photon Zeq'
+        dest_filename = 'Output_Files/Photon Zeq'
         self.data = {
             'name': dest_filename, 'header': [
                 'Energy (MeV)', 'Zeq', 'R'], 'params': [
@@ -281,7 +292,7 @@ class Compound:
                                           1 + (((b1 - 1) * (k1**x - 1)) / (k1 - 1)))
                 self.BE[l] = f(mfps)
 
-            dest_filename = 'Save_Folder/G-P fitting parameters and buildup factors'
+            dest_filename = 'Output_Files/G-P fitting parameters and buildup factors'
             header = ['Energy (MeV)', 'b', 'c', 'a', 'Xk',
                       'd'] + [f'EABF {i}mfp' for i in mfp]
             header += ['b1', 'c1', 'a1', 'Xk1', 'd1'] + \
@@ -348,7 +359,7 @@ class Compound:
             (params.T * self.number_fraction * func(keys) / keys).T, axis=0)[-1] / n
         self.zeff_ratio = self.photon_comp / self.photon_e_comp
 
-        dest_filename = 'Save_Folder/Photon Zeff - Direct method'
+        dest_filename = 'Output_Files/Photon Zeff - Direct method'
         self.data = {'name': dest_filename,
                 'header': ['Energy (MeV)',
                            'σₐ Average Cross Section per Atom (cm²/atom)',
@@ -470,7 +481,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_ele[i] = func(params[i], electron_int_cross[i])
 
-        dest_filename = 'Save_Folder/Electron interaction parameters'
+        dest_filename = 'Output_Files/Electron interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -549,7 +560,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_proton[i] = func(params[i], proton_int_cross[i])
 
-        dest_filename = 'Save_Folder/Proton interaction parameters'
+        dest_filename = 'Output_Files/Proton interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -628,7 +639,7 @@ class Compound:
         for i in range(len(x)):
             self.zeff_alpha[i] = func(params[i], alpha_int_cross[i])
 
-        dest_filename = 'Save_Folder/Alpha particle interaction parameters'
+        dest_filename = 'Output_Files/Alpha particle interaction parameters'
         self.data = {
             'name': dest_filename,
             'header': [
@@ -706,7 +717,7 @@ class Compound:
             self.zeff_x[i] = func(params[i], sigmaa[i])
 
         if kerma:
-            dest_filename = 'Save_Folder/Relative KERMA'
+            dest_filename = 'Output_Files/Relative KERMA'
             self.data = {'name': dest_filename, 'header':
                     ['Energy (MeV)', f'{relative_to_choice} KERMA'],
                     'params': [x, self.kerma]}
@@ -714,7 +725,7 @@ class Compound:
             self.data['plot_params'] = [
                 {'para_name': f'{relative_to_choice}\ KERMA', 'value': self.kerma}]
         else:
-            dest_filename = 'Save_Folder/Photon mass-energy absorption coefficients'
+            dest_filename = 'Output_Files/Photon mass-energy absorption coefficients'
             self.data = {
                 'name': dest_filename,
                 'header': [
@@ -742,13 +753,13 @@ class Compound:
         """Write data of previously run function to .csv file in current directory.
         """
         data = self.data
-        fname = data['name'] + f'-{self.formula_for_text}.csv'
+        fname = appl_path + data['name'] + f'-{self.formula_for_text}.csv'
         X = np.asarray(data['params'])
         if X[0][0] > 1:
             X[0] = X[0] / 1e6
         np.savetxt(fname, X.T, header=', '.join(
             data['header']), delimiter=', ', fmt='%s', encoding="U8")
-        print('Data saved at: ',os.getcwd()+fname)
+        print('Data saved at: ',os.getcwd()+"\\"+fname)
 
     def plot_parameter(self, html=False):
         """Plot the relevant parameters of previously run function.
@@ -821,6 +832,7 @@ class Compound:
 
 def CreateFolder(directory):
     """Create directory if not present"""
+    directory = appl_path + directory
     try:
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -831,6 +843,7 @@ def CreateFolder(directory):
 def CreateLog(dat1, loc="InputLog.log"):
     """
     Create log file of all PAGEX processes"""
+    loc = appl_path + loc
     with open(loc, "a") as text_file:
         text_file.write(json.dumps(dat1))
         text_file.write('\n')
@@ -840,6 +853,7 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     comp = Compound(comp_0a, comp_1a, comp_2a, ff1)
     """Main function exposed to the GUI
     """
+    eel.py_alert("Processing...")
     input_log = {}
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -908,6 +922,7 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
     else:
         comp.plot_parameter(html=True)
         comp.write_to_csv()
+    eel.py_alert("Computation done. Plots below, data in folder: \"Output_Files\".")
     del(comp)
 
 def run_gui():
@@ -919,6 +934,6 @@ def run_gui():
     except (SystemExit, MemoryError, KeyboardInterrupt):
         print('GUI now closed.')
 
-CreateFolder('Save_Folder')
+CreateFolder('Output_Files')
 if __name__ == '__main__':
     run_gui()

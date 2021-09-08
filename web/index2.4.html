@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>PAGEX - October 2019</title>
+    <title>PAGEX</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="skeleton2.4.css">
     <script src="mathjax/MathJax.js?config=TeX-AMS-MML_SVG"></script>
@@ -46,7 +46,9 @@
                             width: 1
                             }};
                 var layout = {title: pname,
-                                autosize: true,
+                                autosize: false,
+                                width:720,
+                                height:720,
                                 xaxis: {
                                     type: 'log',
                                     autorange: true,
@@ -412,6 +414,10 @@
         function excel_alert(alert_str="Excel sheet already open. Please close!"){
             alert(alert_str);
         }
+        eel.expose(py_alert);
+        function py_alert(alert_str){
+            document.getElementById("status").innerHTML = "<h4>"+alert_str+"</h4>";
+        }
         eel.expose(excel_confirm);
         function excel_confirm(alert_str="Excel sheet already open. Please close!"){
             return confirm(alert_str);
@@ -527,7 +533,7 @@
             </div>
         </div>
         </div> 
-        <div class="row">
+        <div id='status' class="row">
             <h4>Plots appear below</h4>
             <!-- <div id='chart1'></div> -->
         </div>
