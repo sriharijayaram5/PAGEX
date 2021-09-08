@@ -20,8 +20,9 @@ Trials/
 Excel_Sheets
 Save_File/
 Save_Folder/
-Outout_Files/
+Output_Files/
 dist/
+pagex_exe/
 pagex_worker.spec
 build/
 .vscode
