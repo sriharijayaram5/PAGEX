@@ -13,8 +13,10 @@ A complete package for computation of various radiation interaction parameters u
 Documentation at: https://pagex.readthedocs.io/
 ### Installation
 - An **executable file** for windows is available in releases to easily run the GUI (https://github.com/sriharijayaram5/PAGEX/releases/download/v1.2/pagex.exe).
-Alternatively, to run from the command line follow the instructions below.
+Alternatively, to run from the *command line* follow the instructions below.
 - Clone the github repository https://github.com/sriharijayaram5/PAGEX.git on your local machine.
+ Instructions to clone a github repository: https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository
+- The repository can also just be donwloaded as .zip file.
 - Install python3.x from https://www.python.org/downloads/.
 - Run the following commands in your *command prompt* in the directory you wish to install a virtual python environment.
 - 
