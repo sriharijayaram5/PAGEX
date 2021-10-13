@@ -665,7 +665,7 @@ class Compound:
                                 'value': msp_comp / alpha_int_cross * self.zeff_alpha}]
         return self.data
 
-    def kerma_1(self, relative_to_choice='Air', kerma=False):
+    def kerma_1(self, relative_to_choice='AIR', kerma=False):
         """Returns Relative KERMA or Photon mass-energy absorption coefficients
 
         :param relative_to_choice: for more see readme or files, defaults to 'AIR'
@@ -928,9 +928,8 @@ def main(comp_0a, do_what_now, output, ff1, comp_1a, comp_2a, eflag, mfp, densit
 def run_gui():
     """Starts the program with a web brower based GUI for easy input and a help page.
     """
-    eel.init('web', allowed_extensions=['.html'])
-    try:
-        eel.start('landing2.4.html', size=(1024, 550))
+    eel.init('web', allowed_extensions=['.html'])    print(os.getcwd())    try:
+        eel.start('landing2.4.html', size=(1024, 550), mode='firefox')
     except (SystemExit, MemoryError, KeyboardInterrupt):
         print('GUI now closed.')
 

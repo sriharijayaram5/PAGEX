@@ -27,3 +27,4 @@ pagex_worker.spec
 build/
 .vscode
 docs - copy
+.save
