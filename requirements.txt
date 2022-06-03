@@ -3,7 +3,7 @@ attrs==21.2.0
 backcall==0.2.0
 beautifulsoup4==4.9.3
 bleach==4.1.0
-bottle==0.12.19
+bottle==0.12.20
 bottle-websocket==0.2.9
 bs4==0.0.1
 certifi==2021.5.30
