@@ -36,7 +36,7 @@ MarkupSafe==2.0.1
 matplotlib==3.3.4
 matplotlib-inline==0.1.2
 mendeleev==0.8.0
-mistune==0.8.4
+mistune==2.0.3
 mpmath==1.2.1
 nbclient==0.5.4
 nbconvert==6.0.7
